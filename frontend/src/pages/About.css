@@ -1,0 +1,265 @@
+/* About Page */
+.about-page {
+  background: #fff;
+}
+
+/* Hero Section */
+.about-hero {
+  position: relative;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.8s ease-out;
+}
+
+.about-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(40, 40, 40, 0.75), rgba(60, 60, 60, 0.65));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #fff;
+  padding: 2.5rem 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.about-hero-content h1 {
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 1rem;
+  letter-spacing: -0.5px;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.about-hero-content p {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.96;
+  max-width: 700px;
+  margin: 0 auto;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+/* History Section */
+.history-section {
+  padding: 4rem 0;
+}
+
+.history-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.history-content {
+  padding-right: 2rem;
+}
+
+.section-label {
+  color: #4A90E2;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 1px;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+.history-content h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1a2332;
+  margin: 0 0 1.25rem;
+  line-height: 1.3;
+}
+
+.history-content p {
+  color: #4a5568;
+  font-size: 1rem;
+  line-height: 1.75;
+  margin: 0;
+}
+
+/* Mission, Vision, Values */
+.mission-values {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.mv-item {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  animation: fadeInUp 0.8s ease-out both;
+  transition: transform 0.3s ease;
+}
+
+.mv-item:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.mv-item:nth-child(2) {
+  animation-delay: 0.4s;
+}
+
+.mv-item:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.mv-item:hover {
+  transform: translateX(8px);
+}
+
+.mv-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #f0f7ff;
+  transition: all 0.3s ease;
+}
+
+.mv-item:hover .mv-icon {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.mv-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.mv-content h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a2332;
+  margin: 0 0 0.5rem;
+}
+
+.mv-content p {
+  color: #4a5568;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* CTA Section */
+.cta-section {
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+  padding: 4rem 0;
+  margin: 3rem 0 0;
+}
+
+.cta-content {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  color: #fff;
+  padding: 0 2rem;
+}
+
+.cta-content h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 1rem;
+  line-height: 1.3;
+}
+
+.cta-content p {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  margin: 0 0 2rem;
+  opacity: 0.95;
+}
+
+.btn-cta-orange {
+  display: inline-block;
+  background: #ff8a2b;
+  color: #fff;
+  font-weight: 700;
+  padding: 0.85rem 2.25rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 138, 43, 0.3);
+}
+
+.btn-cta-orange:hover {
+  background: #e67820;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 138, 43, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .history-layout {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .history-content {
+    padding-right: 0;
+  }
+
+  .about-hero-content h1 {
+    font-size: 2.25rem;
+  }
+
+  .cta-content h2 {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-hero-content h1 {
+    font-size: 1.85rem;
+  }
+
+  .about-hero-content p {
+    font-size: 0.95rem;
+  }
+
+  .history-content h2 {
+    font-size: 1.65rem;
+  }
+
+  .cta-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .mission-values {
+    gap: 1.5rem;
+  }
+
+  .mv-item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .mv-icon {
+    margin: 0 auto;
+  }
+}
