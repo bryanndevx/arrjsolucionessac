@@ -194,6 +194,51 @@
   animation: fadeInRight 0.6s ease-out;
 }
 
+.auth-btn {
+  margin-right: 0.6rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+.auth-btn.ghost { background: transparent; border: 1px solid rgba(255,255,255,0.18) }
+.auth-btn:hover { transform: translateY(-2px) }
+.link-btn { background: none; border: none; color: #2b5d8a; font-weight: 700; cursor: pointer }
+
+/* Modal styles for embedded auth */
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 30, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500;
+  padding: 1rem;
+}
+.auth-modal {
+  width: 100%;
+  max-width: 920px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 20px 50px rgba(4,12,24,0.35);
+  position: relative;
+  padding: 1.25rem;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 1rem;
+}
+.auth-modal-body { padding: 0.5rem }
+.modal-close { position: absolute; right: 10px; top: 8px; border: none; background: transparent; font-size: 1.6rem; cursor: pointer }
+.auth-switch { padding: 0.5rem 1rem; text-align: center; color: #324a5a }
+
+@media (max-width: 900px) {
+  .auth-modal { grid-template-columns: 1fr; max-width: 520px }
+}
+
 @keyframes fadeInRight {
   from {
     opacity: 0;

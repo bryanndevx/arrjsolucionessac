@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom'
 import './Footer.css'
+import { useAuth } from '../../../contexts/AuthContext'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
+  const { user } = useAuth()
+
+  // Ocultar footer para usuarios con rol 'admin'
+  if (user && user.role === 'admin') return null
   
   return (
     <footer className="site-footer-dark">

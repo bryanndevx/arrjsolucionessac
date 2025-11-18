@@ -1,9 +1,20 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import './Header.css'
 import { useCart } from '../../../contexts/CartContext'
+import Login from '../../../pages/Login'
+import Register from '../../../pages/Register'
 
 export default function Header() {
   const { totalCount } = useCart()
+  const [authOpen, setAuthOpen] = useState<false | 'login' | 'register'>(false)
+  const location = useLocation()
+
+  useEffect(() => {
+    // Cerrar modal al cambiar de ruta (p. ej. tras login/registro)
+    if (authOpen) setAuthOpen(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname])
 
   return (
     <header className="site-header">
@@ -30,6 +41,9 @@ export default function Header() {
           <Link to="/contact">Contacto</Link>
         </nav>
         <div className="header-actions">
+          <button className="auth-btn" onClick={() => setAuthOpen('login')}>Entrar</button>
+          <button className="auth-btn ghost" onClick={() => setAuthOpen('register')}>Crear cuenta</button>
+
           <Link to="/cart" className="cart-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -40,6 +54,24 @@ export default function Header() {
           </Link>
         </div>
       </div>
+
+      {authOpen && (
+        <div className="auth-modal-overlay" onMouseDown={() => setAuthOpen(false)}>
+          <div className="auth-modal" onMouseDown={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setAuthOpen(false)} aria-label="Cerrar">×</button>
+            <div className="auth-modal-body">
+              {authOpen === 'login' ? <Login /> : <Register />}
+            </div>
+            <div className="auth-switch">
+              {authOpen === 'login' ? (
+                <span>¿Sin cuenta? <button className="link-btn" onClick={() => setAuthOpen('register')}>Regístrate</button></span>
+              ) : (
+                <span>¿Ya tienes cuenta? <button className="link-btn" onClick={() => setAuthOpen('login')}>Inicia sesión</button></span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   )
 }

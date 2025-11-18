@@ -83,7 +83,7 @@
 .site-header nav{display:flex;gap:1rem;align-items:center}
 .site-header nav a{color:var(--white);text-decoration:none}
 
-.app-main{padding:1.5rem 0}
+.app-main{padding:0}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
 
