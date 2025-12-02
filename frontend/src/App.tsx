@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import './styles/app.css'
 import { Header, Footer } from './components/layout'
 import Home from './pages/Home'
@@ -19,24 +19,35 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
-          <Header />
-          <main className="app-main">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/catalog" element={<Catalog />} />
-              <Route path="/product/:id" element={<Product />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/admin" element={<ProtectedRoute requireRole="admin"><AdminDashboard /></ProtectedRoute>} />
-            </Routes>
-          </main>
-          <Footer />
+          <AppLayout />
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>
+  )
+}
+
+function AppLayout() {
+  const location = useLocation()
+  const hideShell = location.pathname.startsWith('/admin')
+
+  return (
+    <>
+      {!hideShell && <Header />}
+      <main className="app-main">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/catalog" element={<Catalog />} />
+          <Route path="/product/:id" element={<Product />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/admin" element={<ProtectedRoute requireRole="admin"><AdminDashboard /></ProtectedRoute>} />
+        </Routes>
+      </main>
+      {!hideShell && <Footer />}
+    </>
   )
 }
 
