@@ -194,6 +194,17 @@
   animation: fadeInRight 0.6s ease-out;
 }
 
+.auth-logged {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem; /* espacio entre nombre y botón */
+}
+
+.auth-logged .user-name {
+  font-weight: 700;
+  margin-right: 0.3rem;
+}
+
 .auth-btn {
   margin-right: 0.6rem;
   padding: 0.45rem 0.7rem;
