@@ -1,19 +1,55 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn
+} from 'typeorm'
+import { Category } from '../categories/category.entity'
 
-@Entity()
+@Entity({ name: 'products' })
 export class Product {
   @PrimaryGeneratedColumn('increment')
   id: number
 
-  @Column()
+  // Nombre del producto
+  @Column({ type: 'varchar', length: 255 })
   name: string
 
-  @Column({ nullable: true })
+  // Descripción larga
+  @Column({ type: 'text', nullable: true })
   description?: string
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  // Resumen corto
+  @Column({ type: 'varchar', length: 512, nullable: true })
+  short?: string
+
+  // Precio de venta
+  @Column('decimal', { precision: 12, scale: 2, default: 0 })
   price: number
 
-  @Column({ default: true })
-  available: boolean
+  // Precio por día (para alquiler)
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  pricePerDay?: number
+
+  // Tipo: 'sale' | 'rent' | etc.
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  type?: string
+
+  // Imágenes: almacenadas como simple-array de URLs/rutas
+  @Column('simple-array', { nullable: true })
+  images?: string[]
+
+  // Relación a Category — el campo en la tabla será `idCategoria` (badge en frontend)
+  @ManyToOne(() => Category, (category) => category.products, { nullable: true, onDelete: 'SET NULL', eager: true })
+  @JoinColumn({ name: 'idCategoria' })
+  category?: Category
+
+  @CreateDateColumn({ type: 'datetime', name: 'createdAt' })
+  createdAt?: Date
+
+  @UpdateDateColumn({ type: 'datetime', name: 'updatedAt' })
+  updatedAt?: Date
 }

@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
+import { Product } from '../products/product.entity'
 
 @Entity({ name: 'categories' })
 export class Category {
@@ -19,4 +20,7 @@ export class Category {
 
   @UpdateDateColumn({ type: 'datetime', name: 'updatedAt' })
   updatedAt?: Date
+
+  @OneToMany(() => Product, (product) => product.category)
+  products?: Product[]
 }
