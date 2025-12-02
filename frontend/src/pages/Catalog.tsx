@@ -165,17 +165,32 @@ export default function Catalog() {
       .then((data) => {
         if (cancelled) return
         // Map backend product shape to frontend Product type
-        const mapped: Product[] = data.map((p: any) => ({
-          id: String(p.id),
-          name: p.name,
-          price: Number(p.price),
-          pricePerDay: p.pricePerDay ? Number(p.pricePerDay) : undefined,
-          images: p.images || [],
-          badge: p.category?.nombre ? p.category.nombre : p.type === 'rent' ? 'EN ALQUILER' : 'EN VENTA',
-          short: p.short || '',
-          description: p.description || '',
-          type: p.type || undefined
-        }))
+        const mapped: Product[] = data.map((p: any) => {
+          // prefer backend images if they are full URLs; otherwise fallback to local imported assets
+          let images: string[] = []
+          if (Array.isArray(p.images) && p.images.length > 0) {
+            // if items look like full URLs (start with http or /), use them; else fallback
+            const usable = p.images.filter((x: string) => typeof x === 'string' && (x.startsWith('http') || x.startsWith('/')))
+            if (usable.length > 0) images = usable
+          }
+
+          if (images.length === 0) {
+            const fallback = localProducts.find(lp => String(lp.id) === String(p.id))
+            images = fallback?.images || []
+          }
+
+          return {
+            id: String(p.id),
+            name: p.name,
+            price: Number(p.price),
+            pricePerDay: p.pricePerDay ? Number(p.pricePerDay) : undefined,
+            images,
+            badge: p.category?.nombre ? p.category.nombre : p.type === 'rent' ? 'EN ALQUILER' : 'EN VENTA',
+            short: p.short || '',
+            description: p.description || '',
+            type: p.type || undefined
+          }
+        })
         setProducts(mapped)
       })
       .catch(() => {
