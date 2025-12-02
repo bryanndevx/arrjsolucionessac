@@ -76,8 +76,8 @@ export default function AdminInventory() {
                   <td>{it.ubicacion || '—'}</td>
                   <td>{it.product?.category?.nombre || '—'}</td>
                   <td>
-                    <button className="btn" onClick={() => adjust(it.id, -1)}>-</button>
-                    <button className="btn" onClick={() => adjust(it.id, 1)}>+</button>
+                    <button className="btn btn-decrease" onClick={() => adjust(it.id, -1)}>-</button>
+                    <button className="btn btn-increase" onClick={() => adjust(it.id, 1)}>+</button>
                   </td>
                 </tr>
               ))}

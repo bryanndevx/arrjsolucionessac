@@ -222,6 +222,29 @@
   border-bottom: 1px solid #eef6fb
 }
 
+/* Small inventory +/- buttons */
+.btn-increase, .btn-decrease {
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 700;
+  min-width: 36px;
+  display: inline-block;
+  text-align: center;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-increase {
+  background: #1eae52; /* green */
+}
+.btn-increase:hover { background: #168c42 }
+
+.btn-decrease {
+  background: #d64545; /* red */
+}
+.btn-decrease:hover { background: #b23131 }
+
 .tag {
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
