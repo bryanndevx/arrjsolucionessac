@@ -10,6 +10,8 @@ import Contact from './pages/Contact'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import AdminDashboard from './pages/AdminDashboard'
+import AdminHome from './pages/AdminHome'
+import AdminInventory from './pages/AdminInventory'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import { CartProvider } from './contexts/CartContext'
@@ -43,7 +45,10 @@ function AppLayout() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/admin" element={<ProtectedRoute requireRole="admin"><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute requireRole="admin"><AdminDashboard /></ProtectedRoute>}>
+            <Route index element={<AdminHome />} />
+            <Route path="inventario" element={<AdminInventory />} />
+          </Route>
         </Routes>
       </main>
       {!hideShell && <Footer />}
