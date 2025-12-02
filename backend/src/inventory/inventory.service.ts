@@ -12,11 +12,12 @@ export class InventoryService {
   ) {}
 
   findAll() {
-    return this.repo.find()
+    // Explicitly load product and product.category to ensure frontend receives category name
+    return this.repo.find({ relations: ['product', 'product.category'] })
   }
 
   async findOne(id: number) {
-    const inv = await this.repo.findOneBy({ id })
+    const inv = await this.repo.findOne({ where: { id }, relations: ['product', 'product.category'] })
     if (!inv) throw new NotFoundException('Inventory not found')
     return inv
   }

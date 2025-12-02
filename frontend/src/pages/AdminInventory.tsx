@@ -7,7 +7,7 @@ type Inventory = {
   stockMinimo: number
   stockMaximo?: number
   ubicacion?: string
-  product?: { id: number; name: string; category?: { id: number; name: string } }
+  product?: { id: number; name: string; category?: { id: number; nombre: string } }
 }
 
 export default function AdminInventory() {
@@ -74,7 +74,7 @@ export default function AdminInventory() {
                   <td>{it.stockActual}</td>
                   <td>{it.stockMinimo}</td>
                   <td>{it.ubicacion || '—'}</td>
-                  <td>{it.product?.category?.name || '—'}</td>
+                  <td>{it.product?.category?.nombre || '—'}</td>
                   <td>
                     <button className="btn" onClick={() => adjust(it.id, -1)}>-</button>
                     <button className="btn" onClick={() => adjust(it.id, 1)}>+</button>
