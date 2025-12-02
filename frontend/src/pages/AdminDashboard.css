@@ -1,7 +1,8 @@
 .admin-root {
   display: flex;
-  min-height: calc(100vh - 64px);
-  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial
+  /* Ocupa toda la ventana para evitar franja blanca en el dashboard */
+  height: 100vh;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 }
 
 .admin-sidebar {
@@ -82,7 +83,9 @@
   background: #f6f9fb;
   padding: 1.25rem;
   display: flex;
-  flex-direction: column
+  flex-direction: column;
+  /* permitir que el área de contenido crezca y haga scroll interno si hace falta */
+  min-height: 0;
 }
 
 .admin-header {
@@ -102,7 +105,9 @@
 .admin-content {
   display: flex;
   flex-direction: column;
-  gap: 1rem
+  gap: 1rem;
+  flex: 1;
+  overflow: auto;
 }
 
 .cards-row {
