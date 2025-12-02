@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { Product } from './products/products.entity'
+import { ProductsModule } from './products/products.module'
 import { User } from './users/user.entity'
 import { Category } from './categories/category.entity'
 import { Inventory } from './inventory/inventory.entity'
@@ -24,7 +25,8 @@ import { SqliteInitService } from './db/sqlite-init.service'
     }),
     UsersModule,
     AuthModule,
-    InventoryModule
+    InventoryModule,
+    ProductsModule
   ],
   controllers: [],
   providers: [SqliteInitService]

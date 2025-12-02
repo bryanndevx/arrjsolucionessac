@@ -2,13 +2,18 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import './Catalog.css'
 import { ProductCard } from '../components/common'
-import { products } from '../constants'
+import { products as localProducts } from '../constants'
+import type { Product } from '../types/product.types'
+
+// Catalog will fetch products from backend /api/products when available,
+// otherwise falls back to local mock data.
 
 export default function Catalog() {
   const [selectedCategory, setSelectedCategory] = useState<string[]>([])
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState({ min: 0, max: 200000 })
   const [availability, setAvailability] = useState<string>('ambos')
+  const [products, setProducts] = useState<Product[]>(localProducts)
   const [currentPage, setCurrentPage] = useState(1)
   const [sortBy, setSortBy] = useState('relevancia')
   const itemsPerPage = 6
@@ -148,6 +153,37 @@ export default function Catalog() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [currentPage])
+
+  // Fetch products from backend on mount
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/products')
+      .then((res) => {
+        if (!res.ok) throw new Error('Network response not ok')
+        return res.json()
+      })
+      .then((data) => {
+        if (cancelled) return
+        // Map backend product shape to frontend Product type
+        const mapped: Product[] = data.map((p: any) => ({
+          id: String(p.id),
+          name: p.name,
+          price: Number(p.price),
+          pricePerDay: p.pricePerDay ? Number(p.pricePerDay) : undefined,
+          images: p.images || [],
+          badge: p.category?.nombre ? p.category.nombre : p.type === 'rent' ? 'EN ALQUILER' : 'EN VENTA',
+          short: p.short || '',
+          description: p.description || '',
+          type: p.type || undefined
+        }))
+        setProducts(mapped)
+      })
+      .catch(() => {
+        // keep localProducts as fallback
+      })
+
+    return () => { cancelled = true }
+  }, [])
 
   return (
     <div className="catalog-page">
