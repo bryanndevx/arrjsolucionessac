@@ -10,10 +10,13 @@ type User = {
 type AuthContextType = {
   user: User | null
   login: (email: string, password: string) => Promise<User>
+  register: (name: string, email: string, password: string, phone?: string) => Promise<any>
   logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+const API = (import.meta.env.VITE_API_URL as string) || 'http://localhost:3000/api'
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
@@ -33,25 +36,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user])
 
   const login = async (email: string, password: string) => {
-    // Simulación de autenticación. Reemplazar por llamada real al backend.
-    await new Promise((r) => setTimeout(r, 600))
+    const res = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    })
 
-    // Si el correo contiene 'admin' se considera administrador (solo simulación)
-    const isAdmin = /admin|administrator|root/i.test(email)
-    const userObj: User = {
-      name: isAdmin ? 'Administrador' : email.split('@')[0],
-      email,
-      role: isAdmin ? 'admin' : 'user',
-      token: 'fake-jwt-token'
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: 'Error en autenticación' }))
+      throw new Error(err.message || 'Error en autenticación')
     }
 
-    setUser(userObj)
-    return userObj
+    const data = await res.json()
+    const logged: User = { name: data.user.name, email: data.user.email, role: data.user.role, token: data.accessToken }
+    setUser(logged)
+    localStorage.setItem('app_token', data.accessToken)
+    return logged
   }
 
-  const logout = () => setUser(null)
+  const register = async (name: string, email: string, password: string, phone?: string) => {
+    const res = await fetch(`${API}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, phone })
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: 'Error al registrar' }))
+      throw new Error(err.message || 'Error al registrar')
+    }
+    return res.json()
+  }
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
+  const logout = () => {
+    setUser(null)
+    localStorage.removeItem('app_token')
+    localStorage.removeItem('app_user')
+  }
+
+  return <AuthContext.Provider value={{ user, login, register, logout }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

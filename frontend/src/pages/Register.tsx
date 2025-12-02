@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import './Register.css'
 
 export default function Register() {
@@ -11,6 +12,7 @@ export default function Register() {
   const [confirm, setConfirm] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
+  const { register } = useAuth()
 
   const validate = () => {
     const e: Record<string, string> = {}
@@ -31,12 +33,12 @@ export default function Register() {
     if (!validate()) return
     setLoading(true)
     try {
-      // Aquí se llamaría a /auth/register en backend
-      await new Promise((r) => setTimeout(r, 700))
-      // Simulación de registro exitoso: redirigir a login
+      await register(nombre, email, password, telefono)
+      // Registro realizado, redirigir a login
       navigate('/login')
     } catch (err) {
-      setErrors({ general: 'No fue posible crear la cuenta. Intenta más tarde.' })
+      const message = err instanceof Error ? err.message : 'No fue posible crear la cuenta. Intenta más tarde.'
+      setErrors({ general: message })
     } finally {
       setLoading(false)
     }
