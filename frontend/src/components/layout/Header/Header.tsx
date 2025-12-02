@@ -4,11 +4,13 @@ import './Header.css'
 import { useCart } from '../../../contexts/CartContext'
 import Login from '../../../pages/Login'
 import Register from '../../../pages/Register'
+import { useAuth } from '../../../contexts/AuthContext'
 
 export default function Header() {
   const { totalCount } = useCart()
   const [authOpen, setAuthOpen] = useState<false | 'login' | 'register'>(false)
   const location = useLocation()
+  const { user, logout } = useAuth()
 
   useEffect(() => {
     // Cerrar modal al cambiar de ruta (p. ej. tras login/registro)
@@ -41,8 +43,18 @@ export default function Header() {
           <Link to="/contact">Contacto</Link>
         </nav>
         <div className="header-actions">
-          <button className="auth-btn" onClick={() => setAuthOpen('login')}>Entrar</button>
-          <button className="auth-btn ghost" onClick={() => setAuthOpen('register')}>Crear cuenta</button>
+          {user ? (
+            <div className="auth-logged">
+              <span className="user-name">{user.name}</span>
+              {user.role === 'admin' && <Link to="/admin" className="admin-link">Admin</Link>}
+              <button className="auth-btn ghost" onClick={logout}>Cerrar sesión</button>
+            </div>
+          ) : (
+            <>
+              <button className="auth-btn" onClick={() => setAuthOpen('login')}>Entrar</button>
+              <button className="auth-btn ghost" onClick={() => setAuthOpen('register')}>Crear cuenta</button>
+            </>
+          )}
 
           <Link to="/cart" className="cart-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
