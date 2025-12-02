@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module'
 import { Product } from './products/products.entity'
 import { User } from './users/user.entity'
 import { Category } from './categories/category.entity'
+import { Inventory } from './inventory/inventory.entity'
 import { SqliteInitService } from './db/sqlite-init.service'
 
 @Module({
@@ -14,7 +15,7 @@ import { SqliteInitService } from './db/sqlite-init.service'
       database: process.env.DB_PATH || 'data/database.sqlite',
       synchronize: true,
       logging: false,
-      entities: [User, Product, Category],
+      entities: [User, Product, Category, Inventory],
       // Pasar opciones extra al driver sqlite3 (busyTimeout en ms)
       extra: {
         busyTimeout: 60000

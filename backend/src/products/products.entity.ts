@@ -5,9 +5,11 @@ import {
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
+  OneToOne
 } from 'typeorm'
 import { Category } from '../categories/category.entity'
+import { Inventory } from '../inventory/inventory.entity'
 
 @Entity({ name: 'products' })
 export class Product {
@@ -52,4 +54,7 @@ export class Product {
 
   @UpdateDateColumn({ type: 'datetime', name: 'updatedAt' })
   updatedAt?: Date
+
+  @OneToOne(() => Inventory, (inventory) => inventory.product)
+  inventory?: Inventory
 }
