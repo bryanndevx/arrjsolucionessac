@@ -1,20 +1,66 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import './Product.css'
-import { products } from '../constants'
+import { products as mockProducts } from '../constants'
 import { useCart } from '../contexts/CartContext'
 
 export default function Product() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { add } = useCart()
-  const product = products.find((p) => p.id === id)
+  const [product, setProduct] = useState<any>(null)
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1) // Para alquileres: días, Para ventas: unidades
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
+  useEffect(() => {
+    if (!id) return
+    setLoading(true)
+    fetch(`/api/products/${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
+      .then((data) => {
+        // Mapear respuesta del backend al shape esperado en frontend
+        const images = Array.isArray(data.images)
+          ? data.images
+          : typeof data.images === 'string' && data.images.length > 0
+          ? data.images.split(',')
+          : []
+
+        const mapped = {
+          id: String(data.id),
+          name: data.name,
+          description: data.description,
+          short: data.short,
+          price: data.price ? Number(data.price) : 0,
+          pricePerDay: data.pricePerDay ? Number(data.pricePerDay) : undefined,
+          type: data.type,
+          images: images.length ? images : undefined,
+          anio: data.anio,
+          horas: data.horas,
+          condicion: data.condicion,
+          category: data.category,
+          inventory: data.inventory
+        }
+
+        setProduct(mapped)
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error('Error fetching product:', err)
+        setError(err.message)
+        setLoading(false)
+      })
+  }, [id])
+
+  if (loading) return <div className="container">Cargando producto...</div>
+  if (error) return <div className="container">Error cargando producto: {error}</div>
   if (!product) return <div className="container">Producto no encontrado</div>
 
-  const relatedProducts = products.filter(p => p.id !== product.id).slice(0, 4)
+  const relatedProducts = mockProducts.filter(p => p.id !== product.id).slice(0, 4)
   const isRent = product.type === 'rent'
 
   const handleAddToCart = () => {
@@ -47,7 +93,7 @@ export default function Product() {
         {/* Left Column - Images */}
         <div className="product-images">
           <div className="main-image">
-            <img src={product.images?.[0] ?? '/vite.svg'} alt={product.name} />
+            <img src={product.images?.[selectedImage] ?? '/vite.svg'} alt={product.name} />
           </div>
           <div className="image-thumbnails">
             <button 
@@ -60,41 +106,41 @@ export default function Product() {
               className={`thumbnail ${selectedImage === 1 ? 'active' : ''}`}
               onClick={() => setSelectedImage(1)}
             >
-              <img src={product.images?.[0] ?? '/vite.svg'} alt={`${product.name} vista 2`} />
+              <img src={product.images?.[1] ?? product.images?.[0] ?? '/vite.svg'} alt={`${product.name} vista 2`} />
             </button>
             <button 
               className={`thumbnail ${selectedImage === 2 ? 'active' : ''}`}
               onClick={() => setSelectedImage(2)}
             >
-              <img src={product.images?.[0] ?? '/vite.svg'} alt={`${product.name} vista 3`} />
+              <img src={product.images?.[2] ?? product.images?.[0] ?? '/vite.svg'} alt={`${product.name} vista 3`} />
             </button>
             <button 
               className={`thumbnail ${selectedImage === 3 ? 'active' : ''}`}
               onClick={() => setSelectedImage(3)}
             >
-              <img src={product.images?.[0] ?? '/vite.svg'} alt={`${product.name} vista 4`} />
+              <img src={product.images?.[3] ?? product.images?.[0] ?? '/vite.svg'} alt={`${product.name} vista 4`} />
             </button>
           </div>
         </div>
 
         {/* Right Column - Product Info */}
         <div className="product-info">
-          <div className="product-code">CÓDIGO: EXC-0012</div>
+          <div className="product-code">CÓDIGO: {product.id ? `EXC-${String(product.id).padStart(4, '0')}` : '—'}</div>
           <h1 className="product-title">{product.name}</h1>
           <p className="product-subtitle">Potencia y eficiencia para proyectos de gran envergadura.</p>
 
           <div className="product-specs">
             <div className="spec-item">
               <div className="spec-label">Año:</div>
-              <div className="spec-value">2022</div>
+              <div className="spec-value">{product.anio ?? '—'}</div>
             </div>
             <div className="spec-item">
               <div className="spec-label">Horas:</div>
-              <div className="spec-value">1,200</div>
+              <div className="spec-value">{product.horas != null ? Number(product.horas).toLocaleString('es-PE') : '—'}</div>
             </div>
             <div className="spec-item">
               <div className="spec-label">Condición:</div>
-              <div className="spec-value">Excelente</div>
+              <div className="spec-value">{product.condicion ?? '—'}</div>
             </div>
           </div>
 

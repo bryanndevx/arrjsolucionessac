@@ -44,6 +44,18 @@ export class Product {
   @Column('simple-array', { nullable: true })
   images?: string[]
 
+  // Año del equipo
+  @Column({ type: 'int', nullable: true })
+  anio?: number
+
+  // Horas de uso acumuladas
+  @Column({ type: 'int', nullable: true })
+  horas?: number
+
+  // Condición del equipo (por ejemplo: Excelente, Buena, Regular)
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  condicion?: string
+
   // Relación a Category — el campo en la tabla será `idCategoria` (badge en frontend)
   @ManyToOne(() => Category, (category) => category.products, { nullable: true, onDelete: 'SET NULL', eager: true })
   @JoinColumn({ name: 'idCategoria' })
