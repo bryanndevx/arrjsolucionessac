@@ -28,8 +28,8 @@ export default function Login() {
     try {
       // Llamar al contexto de autenticación (simulado)
       const user = await login(email, password)
-      if (user.role === 'admin') navigate('/admin')
-      else navigate('/')
+      if (user.role === 'admin') navigate('/admin', { replace: true })
+      else navigate('/', { replace: true })
     } catch (err) {
       // mostrar error genérico
       setErrors({ password: 'Error en autenticación. Intenta nuevamente.' })

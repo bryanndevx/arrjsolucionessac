@@ -10,7 +10,10 @@ type Props = {
 export default function ProtectedRoute({ children, requireRole }: Props) {
   const { user } = useAuth()
 
-  if (!user) return <Navigate to="/login" replace />
-  if (requireRole && user.role !== requireRole) return <Navigate to="/" replace />
+  // If user state is not yet populated but a token exists in localStorage,
+  // assume authentication is in progress/succeeded to avoid redirect races.
+  const token = typeof window !== 'undefined' ? localStorage.getItem('app_token') : null
+  if (!user && !token) return <Navigate to="/login" replace />
+  if (requireRole && user && user.role !== requireRole) return <Navigate to="/" replace />
   return <>{children}</>
 }
