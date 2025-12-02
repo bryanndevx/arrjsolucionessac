@@ -8,5 +8,14 @@ export default defineConfig({
   server: {
     host: true, // Expone el servidor en la red local
     port: 5173,
+    proxy: {
+      // Proxy API calls to backend (Nest) running on port 3000
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '/api')
+      }
+    }
   },
 })

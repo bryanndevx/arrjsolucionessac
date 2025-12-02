@@ -7,7 +7,7 @@ type Inventory = {
   stockMinimo: number
   stockMaximo?: number
   ubicacion?: string
-  product?: { id: number; name: string }
+  product?: { id: number; name: string; category?: { id: number; name: string } }
 }
 
 export default function AdminInventory() {
@@ -21,7 +21,7 @@ export default function AdminInventory() {
   async function load() {
     setLoading(true)
     try {
-      const res = await fetch('/inventories')
+      const res = await fetch('/api/inventories')
       const data = await res.json()
       setItems(data)
     } catch (err) {
@@ -36,7 +36,7 @@ export default function AdminInventory() {
     if (!item) return
     const newStock = item.stockActual + delta
     try {
-      await fetch(`/inventories/${id}`, {
+      await fetch(`/api/inventories/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stockActual: newStock })
@@ -62,6 +62,7 @@ export default function AdminInventory() {
                 <th>Stock</th>
                 <th>Mínimo</th>
                 <th>Ubicación</th>
+                <th>Estado</th>
                 <th></th>
               </tr>
             </thead>
@@ -73,6 +74,7 @@ export default function AdminInventory() {
                   <td>{it.stockActual}</td>
                   <td>{it.stockMinimo}</td>
                   <td>{it.ubicacion || '—'}</td>
+                  <td>{it.product?.category?.name || '—'}</td>
                   <td>
                     <button className="btn" onClick={() => adjust(it.id, -1)}>-</button>
                     <button className="btn" onClick={() => adjust(it.id, 1)}>+</button>
