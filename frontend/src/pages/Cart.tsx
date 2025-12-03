@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import emailjs from '@emailjs/browser'
 import './Cart.css'
 import { useCart } from '../contexts/CartContext'
 
@@ -197,27 +196,28 @@ export default function CartPage() {
                 setLoading(true)
 
                 try {
-                  const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-                  const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID
-                  const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_QUOTE_ID
+                  const API = (import.meta.env.VITE_API_URL as string) || '/api'
 
-                  // Crear resumen de productos
-                  const productsList = items.map(item => 
+                  const productsList = items.map(item =>
                     `- ${item.product.name} (${item.quantity} ${item.product.type === 'rent' ? 'días' : 'unidades'})`
-                  ).join('\n')
-
-                  await emailjs.send(
-                    SERVICE_ID,
-                    TEMPLATE_ID,
-                    {
-                      from_name: formData.nombre,
-                      from_email: formData.email,
-                      company: formData.empresa,
-                      phone: formData.telefono,
-                      message: `Productos solicitados:\n${productsList}\n\nComentarios: ${formData.comentarios}\n\nTotal estimado: S/ ${(subtotal + subtotal * 0.18).toLocaleString('es-PE')}`,
-                    },
-                    PUBLIC_KEY
                   )
+
+                  const payload = {
+                    name: formData.nombre,
+                    email: formData.email,
+                    phone: formData.telefono,
+                    company: formData.empresa,
+                    message: `Productos solicitados:\n${productsList.join('\n')}\n\nComentarios: ${formData.comentarios}\n\nTotal estimado: S/ ${(subtotal + subtotal * 0.18).toLocaleString('es-PE')}`,
+                    items: productsList
+                  }
+
+                  const res = await fetch(`${API}/mail/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                  })
+
+                  if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
                   alert(`✅ ¡Cotización solicitada exitosamente!\n\nSe enviará a: ${formData.email}\n\nRecibirás una respuesta dentro de las próximas 24 horas.`)
                   setShowQuoteForm(false)

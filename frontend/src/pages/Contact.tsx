@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import emailjs from '@emailjs/browser'
 import './Contact.css'
 
@@ -23,6 +23,25 @@ export default function Contact() {
       const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
       const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID
       const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_CONTACT_ID
+      const EMAIL_DESTINO = import.meta.env.VITE_EMAIL_DESTINO
+
+      // Validar variables de entorno antes de intentar enviar
+      if (!PUBLIC_KEY || !SERVICE_ID || !TEMPLATE_ID) {
+        console.error('Faltan variables de EmailJS:', { PUBLIC_KEY, SERVICE_ID, TEMPLATE_ID })
+        setStatus('error')
+        alert('❌ Configuración de EmailJS incompleta. Revisa las variables de entorno.')
+        setLoading(false)
+        return
+      }
+
+      // Inicializar EmailJS (asegura que la key esté registrada)
+      try {
+        // emailjs.init puede llamarse repetidamente; se hace aquí por seguridad
+        // @ts-ignore
+        if (typeof emailjs.init === 'function') emailjs.init(PUBLIC_KEY)
+      } catch (initErr) {
+        console.warn('No se pudo inicializar emailjs con init():', initErr)
+      }
 
       await emailjs.send(
         SERVICE_ID,
@@ -33,6 +52,8 @@ export default function Contact() {
           phone: formData.telefono,
           subject: formData.motivo,
           message: formData.mensaje,
+          // Añadir el email destino por si la plantilla lo requiere
+          to_email: EMAIL_DESTINO || formData.email,
         },
         PUBLIC_KEY
       )
@@ -48,13 +69,36 @@ export default function Contact() {
       
       alert('✅ ¡Mensaje enviado exitosamente! Te responderemos pronto.')
     } catch (error) {
+      // Mejorar logging para obtener más información del fallo
       console.error('Error al enviar email:', error)
+      try {
+        // Algunos errores de EmailJS vienen con { status, text }
+        // @ts-ignore
+        if (error && error.status) console.error('EmailJS status:', error.status)
+        // @ts-ignore
+        if (error && error.text) console.error('EmailJS text:', error.text)
+      } catch (e) {
+        // noop
+      }
       setStatus('error')
       alert('❌ Error al enviar el mensaje. Por favor intenta nuevamente.')
     } finally {
       setLoading(false)
     }
   }
+
+  // Inicializar emailjs al montar por si alguna parte del flujo lo requiere
+  useEffect(() => {
+    const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+    if (PUBLIC_KEY && typeof emailjs.init === 'function') {
+      try {
+        // @ts-ignore
+        emailjs.init(PUBLIC_KEY)
+      } catch (err) {
+        // no hacemos nada si falla la inicialización aquí
+      }
+    }
+  }, [])
 
   return (
     <div className="contact-page">
