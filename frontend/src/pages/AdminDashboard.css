@@ -303,3 +303,45 @@
     display: none
   }
 }
+
+/* Edit button for inventory actions */
+.btn-edit {
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 700;
+  min-width: 36px;
+  display: inline-block;
+  text-align: center;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  background: #2b6fb3; /* blue */
+}
+.btn-edit:hover { background: #1f5a90 }
+
+/* Modal styles for edit inventory */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.modal-dialog {
+  width: 480px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(8,24,40,0.3);
+  overflow: hidden;
+}
+.modal-header { padding: 16px; border-bottom: 1px solid #eef6fb }
+.modal-body { padding: 16px; display: flex; flex-direction: column; gap: 12px }
+.modal-footer { padding: 12px 16px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #eef6fb }
+.form-control { display: flex; flex-direction: column; gap: 6px }
+.form-control input { padding: 8px 10px; border: 1px solid #dceff7; border-radius: 6px }
+.btn-save { background: #127a3b; color: #fff; padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer }
+.btn-cancel { background: #f2f6f9; color: #163a52; padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer }
+.btn-save:hover { background: #0f6230 }
+.btn-cancel:hover { background: #e9f1f6 }
