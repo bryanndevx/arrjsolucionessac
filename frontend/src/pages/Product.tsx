@@ -82,7 +82,7 @@ export default function Product() {
           <nav className="breadcrumb">
             <Link to="/">Inicio</Link>
             <span className="separator">/</span>
-            <Link to="/catalog">Alquiler</Link>
+            <Link to="/catalog">{isRent ? 'Alquiler' : 'Venta'}</Link>
             <span className="separator">/</span>
             <span className="current">{product.name}</span>
           </nav>
