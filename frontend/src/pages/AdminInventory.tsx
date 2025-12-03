@@ -349,7 +349,7 @@ export default function AdminInventory() {
                     <th>Horas</th>
                     <th>Condición</th>
                     <th>Stock</th>
-                    <th>Imágenes</th>
+                    
                     <th>Creado</th>
                     <th>Actualizado</th>
                     <th>Acciones</th>
@@ -366,7 +366,7 @@ export default function AdminInventory() {
                       <td>{p.horas ?? '—'}</td>
                       <td>{p.condicion ?? '—'}</td>
                       <td>{p.inventory?.stockActual ?? '—'}</td>
-                      <td>{Array.isArray(p.images) ? (p.images.length > 0 ? p.images[0] : '—') : (p.images ? String(p.images) : '—')}</td>
+                      
                       <td>{p.createdAt ? new Date(p.createdAt).toLocaleString() : '—'}</td>
                       <td>{p.updatedAt ? new Date(p.updatedAt).toLocaleString() : '—'}</td>
                       <td>
