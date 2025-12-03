@@ -16,4 +16,10 @@ export class CategoriesService {
     if (!c) throw new NotFoundException('Category not found')
     return c
   }
+
+  async update(id: number, payload: Partial<Category>) {
+    const c = await this.findOne(id)
+    const updated = Object.assign(c, payload)
+    return this.repo.save(updated)
+  }
 }
