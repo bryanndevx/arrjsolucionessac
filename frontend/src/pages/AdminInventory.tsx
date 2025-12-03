@@ -345,6 +345,7 @@ export default function AdminInventory() {
                     <th>Nombre</th>
                     <th>Categoría</th>
                     <th>Precio</th>
+                    <th>Precio por día</th>
                     <th>Año</th>
                     <th>Horas</th>
                     <th>Condición</th>
@@ -362,6 +363,7 @@ export default function AdminInventory() {
                       <td>{p.name}</td>
                       <td>{p.category?.nombre ?? '—'}</td>
                       <td>{p.price != null ? Number(p.price).toLocaleString('es-PE') : '—'}</td>
+                      <td>{p.pricePerDay != null ? Number(p.pricePerDay).toLocaleString('es-PE') : '—'}</td>
                       <td>{p.anio ?? '—'}</td>
                       <td>{p.horas ?? '—'}</td>
                       <td>{p.condicion ?? '—'}</td>
