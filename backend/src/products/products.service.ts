@@ -16,4 +16,10 @@ export class ProductsService {
     if (!p) throw new NotFoundException('Product not found')
     return p
   }
+
+  async update(id: number, payload: Partial<Product>) {
+    const p = await this.findOne(id)
+    const updated = Object.assign(p, payload)
+    return this.repo.save(updated)
+  }
 }

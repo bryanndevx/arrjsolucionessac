@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common'
+import { Controller, Get, Param, Patch, Body } from '@nestjs/common'
 import { ProductsService } from './products.service'
 
 @Controller('products')
@@ -13,5 +13,10 @@ export class ProductsController {
   @Get(':id')
   async get(@Param('id') id: string) {
     return this.service.findOne(+id)
+  }
+
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() body: Partial<any>) {
+    return this.service.update(+id, body)
   }
 }

@@ -19,6 +19,8 @@ export default function AdminInventory() {
   const [editingCategory, setEditingCategory] = useState<any | null>(null)
   const [categoryForm, setCategoryForm] = useState({ nombre: '', descripcion: '', estado: true })
   const [products, setProducts] = useState<Array<any>>([])
+  const [editingProduct, setEditingProduct] = useState<any | null>(null)
+  const [productForm, setProductForm] = useState<any>({ name: '', short: '', description: '', price: '', pricePerDay: '', type: '', images: '', anio: '', horas: '', condicion: '', idCategoria: null })
   const [editingItem, setEditingItem] = useState<Inventory | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formValues, setFormValues] = useState({ stockActual: '', stockMinimo: '', ubicacion: '' })
@@ -93,6 +95,78 @@ export default function AdminInventory() {
       setProducts(data)
     } catch (err) {
       console.error('Error fetching products:', err)
+    }
+  }
+
+  async function adjustProductStock(productId: number, delta: number) {
+    const p = products.find((x: any) => x.id === productId)
+    const invId = p?.inventory?.id
+    if (!invId) return alert('Producto no tiene inventario asociado')
+    try {
+      const newStock = (p.inventory.stockActual ?? 0) + delta
+      const res = await fetch(`/api/inventories/${invId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stockActual: newStock })
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      // update local products list inventory
+      setProducts((prev) => prev.map((item: any) => (item.id === productId ? { ...item, inventory: { ...item.inventory, stockActual: newStock } } : item)))
+    } catch (err) {
+      console.error('Error ajustando stock de producto:', err)
+      alert('No se pudo ajustar el stock del producto')
+    }
+  }
+
+  function openProductEdit(p: any) {
+    setEditingProduct(p)
+    setProductForm({
+      name: p.name ?? '',
+      short: p.short ?? '',
+      description: p.description ?? '',
+      price: p.price != null ? String(p.price) : '',
+      pricePerDay: p.pricePerDay != null ? String(p.pricePerDay) : '',
+      type: p.type ?? '',
+      images: Array.isArray(p.images) ? p.images.join(',') : (p.images ?? ''),
+      anio: p.anio != null ? String(p.anio) : '',
+      horas: p.horas != null ? String(p.horas) : '',
+      condicion: p.condicion ?? '',
+      idCategoria: p.category?.idCategoria ?? p.category?.id ?? null
+    })
+    setIsModalOpen(true)
+  }
+
+  async function saveProductEdit() {
+    if (!editingProduct) return
+    const body: any = {
+      name: productForm.name,
+      short: productForm.short,
+      description: productForm.description,
+      price: productForm.price !== '' ? Number(productForm.price) : null,
+      pricePerDay: productForm.pricePerDay !== '' ? Number(productForm.pricePerDay) : null,
+      type: productForm.type,
+      images: productForm.images ? productForm.images.split(',').map((s: string) => s.trim()).filter(Boolean) : [],
+      anio: productForm.anio !== '' ? Number(productForm.anio) : null,
+      horas: productForm.horas !== '' ? Number(productForm.horas) : null,
+      condicion: productForm.condicion
+    }
+    // allow updating category by idCategoria if provided
+    if (productForm.idCategoria) body.idCategoria = productForm.idCategoria
+
+    try {
+      const res = await fetch(`/api/products/${editingProduct.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const updated = await res.json()
+      setProducts((prev) => prev.map((it) => (it.id === updated.id ? updated : it)))
+      setEditingProduct(null)
+      setIsModalOpen(false)
+    } catch (err) {
+      console.error('Error guardando producto:', err)
+      alert('Error actualizando producto')
     }
   }
 
@@ -271,6 +345,13 @@ export default function AdminInventory() {
                     <th>Nombre</th>
                     <th>Categoría</th>
                     <th>Precio</th>
+                    <th>Año</th>
+                    <th>Horas</th>
+                    <th>Condición</th>
+                    <th>Stock</th>
+                    <th>Imágenes</th>
+                    <th>Creado</th>
+                    <th>Actualizado</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
@@ -281,8 +362,20 @@ export default function AdminInventory() {
                       <td>{p.name}</td>
                       <td>{p.category?.nombre ?? '—'}</td>
                       <td>{p.price != null ? Number(p.price).toLocaleString('es-PE') : '—'}</td>
+                      <td>{p.anio ?? '—'}</td>
+                      <td>{p.horas ?? '—'}</td>
+                      <td>{p.condicion ?? '—'}</td>
+                      <td>{p.inventory?.stockActual ?? '—'}</td>
+                      <td>{Array.isArray(p.images) ? (p.images.length > 0 ? p.images[0] : '—') : (p.images ? String(p.images) : '—')}</td>
+                      <td>{p.createdAt ? new Date(p.createdAt).toLocaleString() : '—'}</td>
+                      <td>{p.updatedAt ? new Date(p.updatedAt).toLocaleString() : '—'}</td>
                       <td>
-                        <Link to={`/product/${p.id}`}>Ver</Link>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <button title="Disminuir stock" className="btn btn-decrease" onClick={() => adjustProductStock(p.id, -1)}>-</button>
+                          <button title="Aumentar stock" className="btn btn-increase" onClick={() => adjustProductStock(p.id, 1)}>+</button>
+                          <button title="Editar producto" className="btn btn-edit" onClick={() => openProductEdit(p)}>✏️</button>
+                          <Link to={`/product/${p.id}`}>Ver</Link>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -297,10 +390,63 @@ export default function AdminInventory() {
         <div className="modal-overlay">
           <div className="modal-dialog">
             <div className="modal-header">
-              <h3>{editingCategory ? `Editar Categoría — ID ${editingCategory.idCategoria}` : `Editar Inventario — ID ${editingItem?.id}`}</h3>
+              <h3>
+                {editingProduct
+                  ? `Editar Producto — ID ${editingProduct.id}`
+                  : editingCategory
+                  ? `Editar Categoría — ID ${editingCategory.idCategoria}`
+                  : `Editar Inventario — ID ${editingItem?.id}`}
+              </h3>
             </div>
             <div className="modal-body">
-              {editingCategory ? (
+              {editingProduct ? (
+                <>
+                  <label className="form-control">
+                    <div>Nombre</div>
+                    <input type="text" value={productForm.name} onChange={(e) => setProductForm((s: any) => ({ ...s, name: e.target.value }))} />
+                  </label>
+
+                  <label className="form-control">
+                    <div>Short</div>
+                    <input type="text" value={productForm.short} onChange={(e) => setProductForm((s: any) => ({ ...s, short: e.target.value }))} />
+                  </label>
+
+                  <label className="form-control">
+                    <div>Descripción</div>
+                    <textarea value={productForm.description} onChange={(e) => setProductForm((s: any) => ({ ...s, description: e.target.value }))} />
+                  </label>
+
+                  <label className="form-control">
+                    <div>Precio</div>
+                    <input type="number" value={productForm.price} onChange={(e) => setProductForm((s: any) => ({ ...s, price: e.target.value }))} />
+                  </label>
+
+                  <label className="form-control">
+                    <div>Precio por día</div>
+                    <input type="number" value={productForm.pricePerDay} onChange={(e) => setProductForm((s: any) => ({ ...s, pricePerDay: e.target.value }))} />
+                  </label>
+
+                  <label className="form-control">
+                    <div>Año</div>
+                    <input type="number" value={productForm.anio} onChange={(e) => setProductForm((s: any) => ({ ...s, anio: e.target.value }))} />
+                  </label>
+
+                  <label className="form-control">
+                    <div>Horas</div>
+                    <input type="number" value={productForm.horas} onChange={(e) => setProductForm((s: any) => ({ ...s, horas: e.target.value }))} />
+                  </label>
+
+                  <label className="form-control">
+                    <div>Condición</div>
+                    <input type="text" value={productForm.condicion} onChange={(e) => setProductForm((s: any) => ({ ...s, condicion: e.target.value }))} />
+                  </label>
+
+                  <label className="form-control">
+                    <div>Imágenes (coma-separadas)</div>
+                    <input type="text" value={productForm.images} onChange={(e) => setProductForm((s: any) => ({ ...s, images: e.target.value }))} />
+                  </label>
+                </>
+              ) : editingCategory ? (
                 <>
                   <label className="form-control">
                     <div>Nombre</div>
@@ -346,8 +492,12 @@ export default function AdminInventory() {
               )}
             </div>
             <div className="modal-footer">
-              <button className="btn btn-cancel" onClick={() => { closeModal(); setEditingCategory(null); }}>Cancelar</button>
-              <button className="btn btn-save" onClick={() => { if (editingCategory) { saveCategoryEdit() } else { saveEdit() } }}>{editingCategory ? 'Guardar' : 'Guardar'}</button>
+              <button className="btn btn-cancel" onClick={() => { closeModal(); setEditingCategory(null); setEditingProduct(null); }}>Cancelar</button>
+              <button className="btn btn-save" onClick={() => {
+                if (editingProduct) { saveProductEdit() }
+                else if (editingCategory) { saveCategoryEdit() }
+                else { saveEdit() }
+              }}>{editingProduct ? 'Guardar producto' : (editingCategory ? 'Guardar' : 'Guardar')}</button>
             </div>
           </div>
         </div>
