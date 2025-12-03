@@ -1,5 +1,8 @@
 import 'reflect-metadata'
-import 'dotenv/config'
+// Prefer loading a local env file if present (keeps secrets out of repo)
+import dotenv from 'dotenv'
+dotenv.config({ path: '.env.local' })
+dotenv.config()
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
