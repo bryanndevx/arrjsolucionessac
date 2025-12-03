@@ -345,3 +345,8 @@
 .btn-cancel { background: #f2f6f9; color: #163a52; padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer }
 .btn-save:hover { background: #0f6230 }
 .btn-cancel:hover { background: #e9f1f6 }
+
+/* Tabs */
+.tabs { display: flex; gap: 8px; margin: 12px 0 }
+.tab { padding: 6px 10px; border-radius: 6px; background: #f2f6f9; border: 1px solid #e6f2f8; cursor: pointer }
+.tab.active { background: #e8faff; border-color: #cde9ff; font-weight: 700 }

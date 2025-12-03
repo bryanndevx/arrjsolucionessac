@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import './AdminDashboard.css'
 
 type Inventory = {
@@ -13,6 +14,9 @@ type Inventory = {
 export default function AdminInventory() {
   const [items, setItems] = useState<Inventory[]>([])
   const [loading, setLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<'inventario' | 'categorias' | 'productos'>('inventario')
+  const [categories, setCategories] = useState<Array<{ id: number; nombre: string }>>([])
+  const [products, setProducts] = useState<Array<any>>([])
   const [editingItem, setEditingItem] = useState<Inventory | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formValues, setFormValues] = useState({ stockActual: '', stockMinimo: '', ubicacion: '' })
@@ -20,6 +24,34 @@ export default function AdminInventory() {
   useEffect(() => {
     load()
   }, [])
+
+  useEffect(() => {
+    // when switching tabs, lazy-load categories or products
+    if (activeTab === 'categorias' && categories.length === 0) fetchCategories()
+    if (activeTab === 'productos' && products.length === 0) fetchProducts()
+  }, [activeTab])
+
+  async function fetchCategories() {
+    try {
+      const res = await fetch('/api/categories')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      setCategories(data)
+    } catch (err) {
+      console.error('Error fetching categories:', err)
+    }
+  }
+
+  async function fetchProducts() {
+    try {
+      const res = await fetch('/api/products')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      setProducts(data)
+    } catch (err) {
+      console.error('Error fetching products:', err)
+    }
+  }
 
   async function load() {
     setLoading(true)
@@ -93,45 +125,117 @@ export default function AdminInventory() {
     <div>
       <div className="panel">
         <h4>Inventario</h4>
-        {loading ? (
-          <div>Loading…</div>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Producto</th>
-                <th>Stock</th>
-                <th>Mínimo</th>
-                <th>Ubicación</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((it) => (
-                <tr key={it.id}>
-                  <td>{it.id}</td>
-                  <td>{it.product?.name || '—'}</td>
-                  <td>{it.stockActual}</td>
-                  <td>{it.stockMinimo}</td>
-                  <td>{it.ubicacion || '—'}</td>
-                  <td>{it.product?.category?.nombre || '—'}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      <button title="Disminuir" className="btn btn-decrease" onClick={() => adjust(it.id, -1)}>-</button>
-                      <button title="Aumentar" className="btn btn-increase" onClick={() => adjust(it.id, 1)}>+</button>
-                      <button title="Editar" className="btn btn-edit" onClick={() => openEdit(it.id)}>
-                        ✏️
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="tabs">
+          <button className={`tab ${activeTab === 'inventario' ? 'active' : ''}`} onClick={() => setActiveTab('inventario')}>Inventario</button>
+          <button className={`tab ${activeTab === 'categorias' ? 'active' : ''}`} onClick={() => setActiveTab('categorias')}>Categorías</button>
+          <button className={`tab ${activeTab === 'productos' ? 'active' : ''}`} onClick={() => setActiveTab('productos')}>Productos</button>
+        </div>
+
+        {/* Inventario tab */}
+        {activeTab === 'inventario' && (
+          <div>
+            {loading ? (
+              <div>Loading…</div>
+            ) : (
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Stock</th>
+                    <th>Mínimo</th>
+                    <th>Ubicación</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((it) => (
+                    <tr key={it.id}>
+                      <td>{it.id}</td>
+                      <td>{it.product?.name || '—'}</td>
+                      <td>{it.stockActual}</td>
+                      <td>{it.stockMinimo}</td>
+                      <td>{it.ubicacion || '—'}</td>
+                      <td>{it.product?.category?.nombre || '—'}</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <button title="Disminuir" className="btn btn-decrease" onClick={() => adjust(it.id, -1)}>-</button>
+                          <button title="Aumentar" className="btn btn-increase" onClick={() => adjust(it.id, 1)}>+</button>
+                          <button title="Editar" className="btn btn-edit" onClick={() => openEdit(it.id)}>✏️</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+
+        {/* Categorias tab */}
+        {activeTab === 'categorias' && (
+          <div>
+            {categories.length === 0 ? (
+              <div>No hay categorías</div>
+            ) : (
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categories.map((c) => (
+                    <tr key={c.id}>
+                      <td>{c.id}</td>
+                      <td>{c.nombre}</td>
+                      <td>—</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+
+        {/* Productos tab */}
+        {activeTab === 'productos' && (
+          <div>
+            {products.length === 0 ? (
+              <div>No hay productos</div>
+            ) : (
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map((p: any) => (
+                    <tr key={p.id}>
+                      <td>{p.id}</td>
+                      <td>{p.name}</td>
+                      <td>{p.category?.nombre ?? '—'}</td>
+                      <td>{p.price != null ? Number(p.price).toLocaleString('es-PE') : '—'}</td>
+                      <td>
+                        <Link to={`/product/${p.id}`}>Ver</Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         )}
       </div>
+
       {isModalOpen && editingItem && (
         <div className="modal-overlay">
           <div className="modal-dialog">
