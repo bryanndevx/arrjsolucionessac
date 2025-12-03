@@ -9,6 +9,7 @@ export class MailController {
   async send(@Body() body: any) {
     // body expected: { name, email, phone, company, message, items, subject }
     const res = await this.mailService.sendContact(body)
-    return { ok: true, id: res?.messageId }
+    // res contains { company: messageId?, requester: messageId? }
+    return { ok: true, companyMessageId: res?.company ?? null, requesterMessageId: res?.requester ?? null }
   }
 }
