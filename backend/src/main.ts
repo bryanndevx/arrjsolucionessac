@@ -1,4 +1,6 @@
 import 'reflect-metadata'
+// Load environment variables from .env when present
+import 'dotenv/config'
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
