@@ -9,6 +9,7 @@ import { Category } from './categories/category.entity'
 import { Inventory } from './inventory/inventory.entity'
 import { InventoryModule } from './inventory/inventory.module'
 import { CategoriesModule } from './categories/categories.module'
+import { MailModule } from './mail/mail.module'
 import { SqliteInitService } from './db/sqlite-init.service'
 
 @Module({
@@ -29,6 +30,7 @@ import { SqliteInitService } from './db/sqlite-init.service'
     InventoryModule,
     CategoriesModule,
     ProductsModule
+    ,MailModule
   ],
   controllers: [],
   providers: [SqliteInitService]
