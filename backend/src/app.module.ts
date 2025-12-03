@@ -8,6 +8,7 @@ import { User } from './users/user.entity'
 import { Category } from './categories/category.entity'
 import { Inventory } from './inventory/inventory.entity'
 import { InventoryModule } from './inventory/inventory.module'
+import { CategoriesModule } from './categories/categories.module'
 import { SqliteInitService } from './db/sqlite-init.service'
 
 @Module({
@@ -26,6 +27,7 @@ import { SqliteInitService } from './db/sqlite-init.service'
     UsersModule,
     AuthModule,
     InventoryModule,
+    CategoriesModule,
     ProductsModule
   ],
   controllers: [],
