@@ -81,11 +81,16 @@ export class MailService {
       return 'S/ ' + num.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     }
 
+    const isRental = Boolean(payload.rentalId || payload.rental)
+    const headerTitle = isRental ? 'Solicitud de Reserva recibida' : 'Solicitud de Cotización recibida'
+    const companyCta = isRental ? 'Ver Reserva' : 'Confirmar compra'
+    const requesterCta = isRental ? 'Completar Alquiler' : 'Completar compra'
+
     // Build HTML email
     const htmlBody = `
       <div style="font-family: Arial, sans-serif; color: #222; max-width:600px;">
         <div style="background:#0f172a;color:#fff;padding:16px;border-radius:6px 6px 0 0">
-          <h2 style="margin:0">Solicitud de Cotización recibida</h2>
+          <h2 style="margin:0">${headerTitle}</h2>
         </div>
         <div style="background:#fff;padding:18px;border:1px solid #eee;border-top:0">
           <p style="margin:0 0 8px 0"><strong>Resumen del cliente</strong></p>
@@ -102,7 +107,7 @@ export class MailService {
           </div>
 
           <div style="text-align:center;margin-top:14px">
-            <a href="${ctaUrl}" style="display:inline-block;padding:12px 20px;background:#1a73e8;color:#fff;border-radius:6px;text-decoration:none">Confirmar compra</a>
+            <a href="${ctaUrl}" style="display:inline-block;padding:12px 20px;background:#1a73e8;color:#fff;border-radius:6px;text-decoration:none">${companyCta}</a>
           </div>
 
           <p style="color:#666;font-size:12px;margin-top:14px">Si no solicitó esto, ignore este correo.</p>
@@ -120,14 +125,14 @@ export class MailService {
       try {
         if (String(requester).toLowerCase() !== String(companyTo).toLowerCase()) {
           const confSubject = `Confirmación de recepción — ${payload.name || 'Solicitud'}`
-          const confText = `Hemos recibido su solicitud de cotización.\n\nResumen:\n${text}\n\nNos pondremos en contacto pronto.`
+          const confText = `Hemos recibido su solicitud.\n\nResumen:\n${text}\n\nNos pondremos en contacto pronto.`
           const requesterHtml = `
             <div style="font-family: Arial, sans-serif; color:#222;">
-              <h3>Hemos recibido su solicitud de cotización.</h3>
+              <h3>Hemos recibido su solicitud.</h3>
               <div>${parts.map(p => `<div>${p}</div>`).join('')}</div>
               <div><strong>Items:</strong>${itemsHtml || '<div>—</div>'}</div>
               <div style="margin-top:16px;text-align:center">
-                <a href="${ctaUrl}" style="display:inline-block;padding:12px 20px;background:#1a73e8;color:#fff;border-radius:6px;text-decoration:none">Completar compra</a>
+                <a href="${ctaUrl}" style="display:inline-block;padding:12px 20px;background:#1a73e8;color:#fff;border-radius:6px;text-decoration:none">${requesterCta}</a>
               </div>
             </div>
           `

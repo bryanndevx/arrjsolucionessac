@@ -219,10 +219,36 @@ export default function CartPage() {
                   const hasRent = items.some(i => i.product.type === 'rent')
                   const endpoint = hasRent ? `${API}/rentals/send` : `${API}/mail/send`
 
+                  // If it's a rental, include days/pricePerDay/startDate/endDate and stringify items accordingly
+                  let bodyPayload: any = payload
+                  if (hasRent) {
+                    const rentItems = items.map(i => ({ id: i.product.id, name: i.product.name, qty: i.quantity, pricePerDay: i.product.pricePerDay }))
+                    const qtys = rentItems.map(r => Number(r.qty || 0)).filter(n => !isNaN(n) && n > 0)
+                    const days = qtys.length ? Math.max(...qtys) : undefined
+                    const startDate = new Date().toISOString()
+                    const endDate = days ? new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString() : undefined
+
+                    bodyPayload = {
+                      name: formData.nombre,
+                      email: formData.email,
+                      phone: formData.telefono,
+                      company: formData.empresa || 'No especificada',
+                      message: `Productos solicitados:\n${productsList}\n\nComentarios: ${formData.comentarios || 'Sin comentarios'}`,
+                      items: rentItems,
+                      subtotal: Number(subtotal),
+                      igv: Number(igv),
+                      total: Number(total),
+                      subject: `Solicitud de reserva - ${formData.nombre || 'Cliente'}`,
+                      days,
+                      startDate,
+                      endDate
+                    }
+                  }
+
                   const res = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(bodyPayload)
                   })
 
                   if (!res.ok) throw new Error(`HTTP ${res.status}`)

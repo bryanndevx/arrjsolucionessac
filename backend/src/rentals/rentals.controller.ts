@@ -18,8 +18,29 @@ export class RentalsController {
       // Token expires in 3 minutes
       const expires = new Date(Date.now() + (3 * 60 * 1000))
 
+      // Normalize incoming fields similar to mail controller
+      const itemsArr = Array.isArray(body.items) ? body.items : (() => {
+        try { return JSON.parse(body.items || '[]') } catch { return [] }
+      })()
+      const itemsJson = JSON.stringify(itemsArr)
+
+      const qtys = itemsArr.map((it: any) => Number(it.qty ?? it.quantity ?? it.days ?? 0)).filter((n: number) => !isNaN(n) && n > 0)
+      const days = body.days ?? (qtys.length ? Math.max(...qtys) : undefined)
+      const startDate = body.startDate ?? (new Date()).toISOString()
+      const endDate = body.endDate ?? (days ? new Date(Date.now() + (Number(days) * 24 * 60 * 60 * 1000)).toISOString() : undefined)
+      const pricePerDay = body.pricePerDay ?? (itemsArr.length ? (itemsArr[0].pricePerDay ?? itemsArr[0].price) : undefined)
+
       const dto: CreateRentalDto = {
-        ...body,
+        customerName: body.name ?? body.customerName,
+        email: body.email,
+        phone: body.phone,
+        items: itemsJson,
+        startDate,
+        endDate,
+        days,
+        pricePerDay,
+        total: body.total,
+        notes: body.message,
         status: 'pending',
         token,
         tokenExpires: expires.toISOString()
