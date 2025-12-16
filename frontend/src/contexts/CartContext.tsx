@@ -66,8 +66,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (found) {
         return cur.map((i) => (i.product.id === product.id ? { ...i, quantity: i.quantity + qty } : i))
       }
-      // Si es alquiler, empezar con 1 día por defecto
-      const initialQty = product.type === 'rent' ? 1 : qty
+      // Use the provided qty for both sale and rent (for rent qty represents days)
+      const initialQty = qty
       return [...cur, { product, quantity: initialQty }]
     })
   }
