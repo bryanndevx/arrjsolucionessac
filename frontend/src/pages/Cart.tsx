@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import emailjs from '@emailjs/browser'
 import './Cart.css'
 import { useCart } from '../contexts/CartContext'
 
@@ -195,42 +194,33 @@ export default function CartPage() {
               onSubmit={async (e) => {
                 e.preventDefault()
                 setLoading(true)
-
                 try {
-                  // Configuración EmailJS
-                  const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-                  const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID
-                  const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_QUOTE_ID
-                  const EMAIL_DESTINO = import.meta.env.VITE_EMAIL_DESTINO
+                  const API = (import.meta.env.VITE_API_URL as string) || '/api'
 
-                  if (!PUBLIC_KEY || !SERVICE_ID || !TEMPLATE_ID) {
-                    console.error('Faltan variables de EmailJS:', { PUBLIC_KEY, SERVICE_ID, TEMPLATE_ID })
-                    alert('❌ Configuración de EmailJS incompleta. Revisa las variables de entorno.')
-                    setLoading(false)
-                    return
-                  }
-
-                  // Lista de productos para el email
+                  // Lista de productos para el email and payload
                   const productsList = items.map(item =>
                     `- ${item.product.name} (${item.quantity} ${item.product.type === 'rent' ? 'días' : 'unidades'})`
                   ).join('\n')
 
-                  // Enviar email con EmailJS
-                  await emailjs.send(
-                    SERVICE_ID,
-                    TEMPLATE_ID,
-                    {
-                      from_name: formData.nombre,
-                      from_email: formData.email,
-                      phone: formData.telefono,
-                      company: formData.empresa || 'No especificada',
-                      message: `Productos solicitados:\n${productsList}\n\nComentarios: ${formData.comentarios || 'Sin comentarios'}\n\nSubtotal: S/ ${subtotal.toLocaleString('es-PE', { minimumFractionDigits: 2 })}\nIGV (18%): S/ ${igv.toLocaleString('es-PE', { minimumFractionDigits: 2 })}\nTotal: S/ ${total.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`,
-                      to_email: EMAIL_DESTINO || formData.email,
-                    },
-                    PUBLIC_KEY
-                  )
+                  const payload = {
+                    name: formData.nombre,
+                    email: formData.email,
+                    phone: formData.telefono,
+                    company: formData.empresa || 'No especificada',
+                    message: `Productos solicitados:\n${productsList}\n\nComentarios: ${formData.comentarios || 'Sin comentarios'}\n\nSubtotal: S/ ${subtotal.toLocaleString('es-PE', { minimumFractionDigits: 2 })}\nIGV (18%): S/ ${igv.toLocaleString('es-PE', { minimumFractionDigits: 2 })}\nTotal: S/ ${total.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`,
+                    items: items.map(i => ({ id: i.product.id, name: i.product.name, qty: i.quantity })),
+                    subject: `Solicitud de cotización - ${formData.nombre || 'Cliente'}`
+                  }
 
-                  alert(`✅ ¡Cotización enviada exitosamente!\n\n📧 Se envió a: ${EMAIL_DESTINO}\n\nRecibirás una respuesta dentro de las próximas 24 horas.\n\nTotal: S/ ${total.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`)
+                  const res = await fetch(`${API}/mail/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                  })
+
+                  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+                  alert(`✅ ¡Cotización enviada exitosamente!\n\n📧 Se envió a: ${formData.email}\n\nTotal: S/ ${total.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`)
                   setShowQuoteForm(false)
                   clear()
                   setFormData({ nombre: '', empresa: '', telefono: '', email: '', comentarios: '' })
