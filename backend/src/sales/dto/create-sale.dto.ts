@@ -29,4 +29,16 @@ export class CreateSaleDto {
   @IsOptional()
   @IsString()
   status?: string
+
+  @IsOptional()
+  @IsString()
+  token?: string
+
+  @IsOptional()
+  @IsString()
+  tokenExpires?: string
+
+  @IsOptional()
+  @IsString()
+  buyerDetails?: string
 }
