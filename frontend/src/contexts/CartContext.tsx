@@ -27,7 +27,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const raw = localStorage.getItem('cart')
       if (raw) {
         const parsed = JSON.parse(raw)
-        if (Array.isArray(parsed)) setItems(parsed)
+        if (Array.isArray(parsed)) {
+          // restore items ensuring product has expected minimal fields
+          const restored = parsed.map((it: any) => ({
+            product: {
+              id: it.product.id,
+              name: it.product.name,
+              type: it.product.type,
+              price: it.product.price,
+              pricePerDay: it.product.pricePerDay,
+              images: it.product.images
+            },
+            quantity: it.quantity
+          }))
+          setItems(restored)
+        }
       }
     } catch (err) {
       console.warn('Unable to read cart from localStorage', err)
@@ -36,8 +50,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     try {
-      localStorage.setItem('cart', JSON.stringify(items))
-      console.debug('[Cart] persisted', items.length, 'items')
+      // persist only minimal product fields to avoid serialization issues
+      const toSave = items.map(i => ({ product: { id: i.product.id, name: i.product.name, type: i.product.type, price: i.product.price, pricePerDay: i.product.pricePerDay, images: i.product.images }, quantity: i.quantity }))
+      localStorage.setItem('cart', JSON.stringify(toSave))
+      console.debug('[Cart] persisted', toSave.length, 'items')
     } catch (err) {
       console.warn('Unable to persist cart to localStorage', err)
     }
