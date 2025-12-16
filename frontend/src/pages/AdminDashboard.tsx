@@ -19,13 +19,12 @@ export default function AdminDashboard() {
           <div className="brand-name">ARRJ Soluciones</div>
         </div>
         <nav className="sidebar-nav">
-          <Link to="/admin" className={isActive('/admin') ? 'active' : ''}>Dashboard</Link>
-          <Link to="/admin/inventario" className={isActive('/admin/inventario') ? 'active' : ''}>Inventario</Link>
-          <Link to="#">Alquileres</Link>
-          <Link to="#">Ventas</Link>
-          <Link to="#">Mantenimiento</Link>
-          <Link to="#">Reportes</Link>
-          <Link to="#">Configuración</Link>
+          <Link to="/admin" className={isActive('/admin') ? 'active' : ''}>📊 Dashboard</Link>
+          <Link to="/admin/inventario" className={isActive('/admin/inventario') ? 'active' : ''}>📦 Inventario</Link>
+          <Link to="/admin/orders" className={isActive('/admin/orders') ? 'active' : ''}>📋 Órdenes</Link>
+          <Link to="/admin/mantenimiento" className={isActive('/admin/mantenimiento') ? 'active' : ''}>🔧 Mantenimiento</Link>
+          <Link to="/admin/reportes" className={isActive('/admin/reportes') ? 'active' : ''}>📈 Reportes</Link>
+          <Link to="/admin/configuracion" className={isActive('/admin/configuracion') ? 'active' : ''}>⚙️ Configuración</Link>
         </nav>
         <div className="sidebar-footer">
           <div className="user-pill">{user?.name}</div>

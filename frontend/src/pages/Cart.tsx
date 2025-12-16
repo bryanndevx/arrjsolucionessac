@@ -202,7 +202,7 @@ export default function CartPage() {
                     `- ${item.product.name} (${item.quantity} ${item.product.type === 'rent' ? 'días' : 'unidades'})`
                   )
 
-                  const payload = {
+                  const mailPayload = {
                     name: formData.nombre,
                     email: formData.email,
                     phone: formData.telefono,
@@ -211,13 +211,41 @@ export default function CartPage() {
                     items: productsList
                   }
 
-                  const res = await fetch(`${API}/mail/send`, {
+                  // Enviar email
+                  const mailRes = await fetch(`${API}/mail/send`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(mailPayload)
                   })
 
-                  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+                  if (!mailRes.ok) throw new Error(`HTTP ${mailRes.status}`)
+
+                  // Guardar orden en la base de datos
+                  const orderPayload = {
+                    customerName: formData.nombre,
+                    email: formData.email,
+                    phone: formData.telefono,
+                    company: formData.empresa || '',
+                    message: formData.comentarios || '',
+                    total: total,
+                    type: items.some(i => i.product.type === 'rent') ? 'rental' : 'sale',
+                    items: items.map(item => ({
+                      productName: item.product.name,
+                      quantity: item.quantity,
+                      price: item.product.type === 'rent' && item.product.pricePerDay 
+                        ? item.product.pricePerDay 
+                        : item.product.price,
+                      productType: item.product.type || 'rent'
+                    }))
+                  }
+
+                  const orderRes = await fetch(`${API}/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderPayload)
+                  })
+
+                  if (!orderRes.ok) console.warn('Failed to save order to database')
 
                   alert(`✅ ¡Cotización solicitada exitosamente!\n\nSe enviará a: ${formData.email}\n\nRecibirás una respuesta dentro de las próximas 24 horas.`)
                   setShowQuoteForm(false)

@@ -12,6 +12,10 @@ import Register from './pages/Register'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminHome from './pages/AdminHome'
 import AdminInventory from './pages/AdminInventory'
+import AdminOrders from './pages/AdminOrders'
+import AdminMaintenance from './pages/AdminMaintenance'
+import AdminReports from './pages/AdminReports'
+import AdminSettings from './pages/AdminSettings'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import { CartProvider } from './contexts/CartContext'
@@ -48,6 +52,10 @@ function AppLayout() {
           <Route path="/admin" element={<ProtectedRoute requireRole="admin"><AdminDashboard /></ProtectedRoute>}>
             <Route index element={<AdminHome />} />
             <Route path="inventario" element={<AdminInventory />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="mantenimiento" element={<AdminMaintenance />} />
+            <Route path="reportes" element={<AdminReports />} />
+            <Route path="configuracion" element={<AdminSettings />} />
           </Route>
         </Routes>
       </main>

@@ -350,3 +350,41 @@
 .tabs { display: flex; gap: 8px; margin: 12px 0 }
 .tab { padding: 6px 10px; border-radius: 6px; background: #f2f6f9; border: 1px solid #e6f2f8; cursor: pointer }
 .tab.active { background: #e8faff; border-color: #cde9ff; font-weight: 700 }
+
+/* Charts */
+.panel h4 {
+  margin: 0 0 1rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #163a52;
+}
+
+.mini-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.mini {
+  background: linear-gradient(135deg, #f8fcff, #ffffff);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e8f1f6;
+  text-align: center;
+}
+
+.mini strong {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mini .num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #163a52;
+}
