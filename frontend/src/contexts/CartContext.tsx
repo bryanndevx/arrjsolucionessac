@@ -19,21 +19,37 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | undefined>(undefined)
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>([])
-  
-  // Load cart from localStorage on mount (optional - commented out to start fresh)
-  // useEffect(() => {
-  //   try {
-  //     const raw = localStorage.getItem('cart')
-  //     if (raw) setItems(JSON.parse(raw))
-  //   } catch (err) {
-  //     console.warn('Unable to read cart from localStorage', err)
-  //   }
-  // }, [])
+  const [items, setItems] = useState<CartItem[]>(() => {
+    try {
+      const raw = localStorage.getItem('cart')
+      if (!raw) return []
+      const parsed = JSON.parse(raw)
+      if (!Array.isArray(parsed)) return []
+      const restored = parsed.map((it: any) => ({
+        product: {
+          id: it.product.id,
+          name: it.product.name,
+          type: it.product.type,
+          price: it.product.price,
+          pricePerDay: it.product.pricePerDay,
+          images: it.product.images
+        },
+        quantity: it.quantity
+      }))
+      console.debug('[Cart] init loaded', restored.length, 'items from localStorage')
+      return restored
+    } catch (err) {
+      console.warn('Unable to read cart from localStorage during init', err)
+      return []
+    }
+  })
 
   useEffect(() => {
     try {
-      localStorage.setItem('cart', JSON.stringify(items))
+      // persist only minimal product fields to avoid serialization issues
+      const toSave = items.map(i => ({ product: { id: i.product.id, name: i.product.name, type: i.product.type, price: i.product.price, pricePerDay: i.product.pricePerDay, images: i.product.images }, quantity: i.quantity }))
+      localStorage.setItem('cart', JSON.stringify(toSave))
+      console.debug('[Cart] persisted', toSave.length, 'items')
     } catch (err) {
       console.warn('Unable to persist cart to localStorage', err)
     }
@@ -45,8 +61,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (found) {
         return cur.map((i) => (i.product.id === product.id ? { ...i, quantity: i.quantity + qty } : i))
       }
-      // Si es alquiler, empezar con 1 día por defecto
-      const initialQty = product.type === 'rent' ? 1 : qty
+      // Use the provided qty for both sale and rent (for rent qty represents days)
+      const initialQty = qty
       return [...cur, { product, quantity: initialQty }]
     })
   }

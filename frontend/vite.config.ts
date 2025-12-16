@@ -4,7 +4,9 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  // Disable Fast Refresh to avoid HMR "export is incompatible" warnings during development
+  // Cast to `any` to avoid TypeScript complaining about unknown plugin option
+  plugins: [react(({ fastRefresh: false } as any))],
   server: {
     host: true, // Expone el servidor en la red local
     port: 5173,
