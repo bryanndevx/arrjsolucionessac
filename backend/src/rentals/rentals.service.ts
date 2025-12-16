@@ -44,7 +44,11 @@ export class RentalsService {
   }
 
   async update(id: number, patch: Partial<Rental>) {
-    await this.repo.update(id, patch)
+    const toUpdate: any = { ...patch }
+    if (toUpdate.startDate) toUpdate.startDate = new Date(toUpdate.startDate)
+    if (toUpdate.endDate) toUpdate.endDate = new Date(toUpdate.endDate)
+    if (toUpdate.tokenExpires) toUpdate.tokenExpires = new Date(toUpdate.tokenExpires)
+    await this.repo.update(id, toUpdate)
     return this.findOne(id)
   }
 }

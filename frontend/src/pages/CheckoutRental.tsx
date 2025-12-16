@@ -13,6 +13,8 @@ export default function CheckoutRental() {
   const navigate = useNavigate()
   const [rental, setRental] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
   const [buyerDetails, setBuyerDetails] = useState({
     address: '',
     paymentMethod: 'bank_transfer',
@@ -31,8 +33,21 @@ export default function CheckoutRental() {
           setRental(data.rental)
           if (data.message) setMessage(data.message)
           if (data.tokenExpired && !data.message) setMessage('Reserva expirada')
+          // initialize dates if present
+          try {
+            const s = data.rental.startDate ? (new Date(data.rental.startDate)).toISOString().slice(0,10) : null
+            const e = data.rental.endDate ? (new Date(data.rental.endDate)).toISOString().slice(0,10) : null
+            setStartDate(s)
+            setEndDate(e)
+          } catch (_) {}
         } else {
           setRental(data)
+          try {
+            const s = data.startDate ? (new Date(data.startDate)).toISOString().slice(0,10) : null
+            const e = data.endDate ? (new Date(data.endDate)).toISOString().slice(0,10) : null
+            setStartDate(s)
+            setEndDate(e)
+          } catch (_) {}
         }
       })
       .catch((err) => console.error(err))
@@ -63,7 +78,9 @@ export default function CheckoutRental() {
         buyerDetails: JSON.stringify(buyerDetails),
         status: 'completed',
         notes: buyerDetails.notes || rental.notes || '',
-        token
+        token,
+        startDate,
+        endDate
       }
       const res = await fetch(`${API}/rentals/${rentalId}`, {
         method: 'PATCH',
@@ -111,6 +128,14 @@ export default function CheckoutRental() {
             <option value="card">Tarjeta (simulada)</option>
           </select>
         </div>
+          <div className="form-group">
+            <label>Fecha de inicio</label>
+            <input type="date" value={startDate ?? ''} onChange={(e) => setStartDate(e.target.value)} required />
+          </div>
+          <div className="form-group">
+            <label>Fecha de fin</label>
+            <input type="date" value={endDate ?? ''} onChange={(e) => setEndDate(e.target.value)} required />
+          </div>
         <div className="form-group">
           <label>Notas adicionales</label>
           <textarea value={buyerDetails.notes} onChange={(e) => setBuyerDetails({...buyerDetails, notes: e.target.value})} />
