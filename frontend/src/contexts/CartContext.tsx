@@ -37,6 +37,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     try {
       localStorage.setItem('cart', JSON.stringify(items))
+      console.debug('[Cart] persisted', items.length, 'items')
     } catch (err) {
       console.warn('Unable to persist cart to localStorage', err)
     }
