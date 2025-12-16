@@ -35,4 +35,9 @@ export class SalesService {
   async findOne(id: number) {
     return this.repo.findOneBy({ id })
   }
+
+  async update(id: number, patch: Partial<Sale>) {
+    await this.repo.update(id, patch)
+    return this.findOne(id)
+  }
 }
