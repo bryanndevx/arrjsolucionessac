@@ -21,15 +21,18 @@ const CartContext = createContext<CartContextValue | undefined>(undefined)
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([])
   
-  // Load cart from localStorage on mount (optional - commented out to start fresh)
-  // useEffect(() => {
-  //   try {
-  //     const raw = localStorage.getItem('cart')
-  //     if (raw) setItems(JSON.parse(raw))
-  //   } catch (err) {
-  //     console.warn('Unable to read cart from localStorage', err)
-  //   }
-  // }, [])
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('cart')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) setItems(parsed)
+      }
+    } catch (err) {
+      console.warn('Unable to read cart from localStorage', err)
+    }
+  }, [])
 
   useEffect(() => {
     try {
