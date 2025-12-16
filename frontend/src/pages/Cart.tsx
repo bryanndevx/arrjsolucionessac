@@ -194,21 +194,25 @@ export default function CartPage() {
               onSubmit={async (e) => {
                 e.preventDefault()
                 setLoading(true)
-
                 try {
                   const API = (import.meta.env.VITE_API_URL as string) || '/api'
 
+                  // Lista de productos para el email and payload
                   const productsList = items.map(item =>
                     `- ${item.product.name} (${item.quantity} ${item.product.type === 'rent' ? 'días' : 'unidades'})`
-                  )
+                  ).join('\n')
 
                   const payload = {
                     name: formData.nombre,
                     email: formData.email,
                     phone: formData.telefono,
-                    company: formData.empresa,
-                    message: `Productos solicitados:\n${productsList.join('\n')}\n\nComentarios: ${formData.comentarios}\n\nTotal estimado: S/ ${(subtotal + subtotal * 0.18).toLocaleString('es-PE')}`,
-                    items: productsList
+                    company: formData.empresa || 'No especificada',
+                    message: `Productos solicitados:\n${productsList}\n\nComentarios: ${formData.comentarios || 'Sin comentarios'}`,
+                    items: items.map(i => ({ id: i.product.id, name: i.product.name, qty: i.quantity })),
+                    subtotal: Number(subtotal),
+                    igv: Number(igv),
+                    total: Number(total),
+                    subject: `Solicitud de cotización - ${formData.nombre || 'Cliente'}`
                   }
 
                   const res = await fetch(`${API}/mail/send`, {
@@ -219,12 +223,12 @@ export default function CartPage() {
 
                   if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
-                  alert(`✅ ¡Cotización solicitada exitosamente!\n\nSe enviará a: ${formData.email}\n\nRecibirás una respuesta dentro de las próximas 24 horas.`)
+                  alert(`✅ ¡Cotización enviada exitosamente!\n\n📧 Se envió a: ${formData.email}\n\nTotal: S/ ${total.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`)
                   setShowQuoteForm(false)
                   clear()
                   setFormData({ nombre: '', empresa: '', telefono: '', email: '', comentarios: '' })
                 } catch (error) {
-                  console.error('Error:', error)
+                  console.error('Error al enviar cotización:', error)
                   alert('❌ Error al enviar la cotización. Por favor intenta nuevamente.')
                 } finally {
                   setLoading(false)

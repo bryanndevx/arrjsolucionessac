@@ -1,0 +1,9 @@
+.checkout-page { padding: 24px; }
+.checkout-page h1 { margin-bottom: 12px; }
+.sale-summary { background: #fff; padding: 16px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 16px; }
+.checkout-form { background: #fff; padding: 16px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.form-group { margin-bottom: 12px; }
+.form-group label { display:block; margin-bottom:6px; font-weight:600 }
+.form-group input, .form-group textarea, .form-group select { width:100%; padding:8px; border:1px solid #ddd; border-radius:4px }
+.actions { margin-top: 12px; text-align:right }
+.btn-submit { background:#1a73e8; color:#fff; padding:10px 14px; border-radius:6px; border:0 }

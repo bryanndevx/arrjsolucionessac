@@ -48,19 +48,71 @@ export class MailService {
     const companyTo = process.env.EMAIL_DESTINATION || process.env.SMTP_USER
     const requester = payload.email
     const subject = payload.subject || `Nueva solicitud desde sitio: ${payload.name || 'Sin nombre'}`
-    const textParts: string[] = []
-    if (payload.name) textParts.push(`Nombre: ${payload.name}`)
-    if (payload.email) textParts.push(`Email: ${payload.email}`)
-    if (payload.phone) textParts.push(`Teléfono: ${payload.phone}`)
-    if (payload.company) textParts.push(`Empresa: ${payload.company}`)
-    if (payload.items) textParts.push(`Items: ${Array.isArray(payload.items) ? payload.items.join(', ') : payload.items}`)
-    if (payload.message) textParts.push(`Mensaje:\n${payload.message}`)
+    const parts: string[] = []
+    if (payload.name) parts.push(`Nombre: ${payload.name}`)
+    if (payload.email) parts.push(`Email: ${payload.email}`)
+    if (payload.phone) parts.push(`Teléfono: ${payload.phone}`)
+    if (payload.company) parts.push(`Empresa: ${payload.company}`)
+    if (payload.message) parts.push(`Mensaje:\n${payload.message}`)
 
-    const text = textParts.join('\n')
+    // Prepare items rendering
+    let itemsHtml = ''
+    let itemsText = ''
+    try {
+      const items = Array.isArray(payload.items) ? payload.items : JSON.parse(payload.items || '[]')
+      if (Array.isArray(items) && items.length) {
+        itemsHtml = `<ul>${items.map((it: any) => `<li>${it.name ?? it.productName ?? JSON.stringify(it)} ${it.qty ? ` — ${it.qty}` : ''}</li>`).join('')}</ul>`
+        itemsText = items.map((it: any) => `- ${it.name ?? it.productName ?? JSON.stringify(it)} ${it.qty ? ` — ${it.qty}` : ''}`).join('\n')
+      }
+    } catch (err) {
+      // fallback: show raw items
+      itemsText = String(payload.items || '')
+      itemsHtml = `<pre>${itemsText}</pre>`
+    }
 
-    // Send to company / destination
+    const text = parts.concat(itemsText ? [`Items:\n${itemsText}`] : []).join('\n')
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
+    const ctaUrl = payload.ctaUrl || (payload.saleId ? `${frontendUrl}/checkout?saleId=${payload.saleId}` : frontendUrl)
+
+    const fmt = (n: any) => {
+      const num = Number(n)
+      if (isNaN(num)) return '—'
+      return 'S/ ' + num.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    }
+
+    // Build HTML email
+    const htmlBody = `
+      <div style="font-family: Arial, sans-serif; color: #222; max-width:600px;">
+        <div style="background:#0f172a;color:#fff;padding:16px;border-radius:6px 6px 0 0">
+          <h2 style="margin:0">Solicitud de Cotización recibida</h2>
+        </div>
+        <div style="background:#fff;padding:18px;border:1px solid #eee;border-top:0">
+          <p style="margin:0 0 8px 0"><strong>Resumen del cliente</strong></p>
+          <div style="margin-bottom:12px">${parts.map(p => `<div style="margin:2px 0">${p}</div>`).join('')}</div>
+
+          <p style="margin:10px 0 6px"><strong>Items</strong></p>
+          <div style="margin-bottom:12px">${itemsHtml || '<div>—</div>'}</div>
+
+          <div style="padding:12px;background:#f9fafb;border-radius:6px;margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between"><div>Subtotal</div><div>${fmt(payload.subtotal)}</div></div>
+            <div style="display:flex;justify-content:space-between"><div>IGV (18%)</div><div>${fmt(payload.igv)}</div></div>
+            <hr style="border:none;border-top:1px solid #eee;margin:8px 0" />
+            <div style="display:flex;justify-content:space-between;font-weight:700"><div>Total</div><div>${fmt(payload.total)}</div></div>
+          </div>
+
+          <div style="text-align:center;margin-top:14px">
+            <a href="${ctaUrl}" style="display:inline-block;padding:12px 20px;background:#1a73e8;color:#fff;border-radius:6px;text-decoration:none">Confirmar compra</a>
+          </div>
+
+          <p style="color:#666;font-size:12px;margin-top:14px">Si no solicitó esto, ignore este correo.</p>
+        </div>
+      </div>
+    `
+
+    // Send to company / destination (HTML + text)
     const companySubject = subject
-    const infoCompany = await this.sendMail({ to: companyTo, subject: companySubject, text })
+    const infoCompany = await this.sendMail({ to: companyTo, subject: companySubject, text, html: htmlBody })
 
     // Send confirmation to requester if provided and different from company destination
     let infoRequester = null
@@ -69,9 +121,18 @@ export class MailService {
         if (String(requester).toLowerCase() !== String(companyTo).toLowerCase()) {
           const confSubject = `Confirmación de recepción — ${payload.name || 'Solicitud'}`
           const confText = `Hemos recibido su solicitud de cotización.\n\nResumen:\n${text}\n\nNos pondremos en contacto pronto.`
-          infoRequester = await this.sendMail({ to: requester, subject: confSubject, text: confText })
+          const requesterHtml = `
+            <div style="font-family: Arial, sans-serif; color:#222;">
+              <h3>Hemos recibido su solicitud de cotización.</h3>
+              <div>${parts.map(p => `<div>${p}</div>`).join('')}</div>
+              <div><strong>Items:</strong>${itemsHtml || '<div>—</div>'}</div>
+              <div style="margin-top:16px;text-align:center">
+                <a href="${ctaUrl}" style="display:inline-block;padding:12px 20px;background:#1a73e8;color:#fff;border-radius:6px;text-decoration:none">Completar compra</a>
+              </div>
+            </div>
+          `
+          infoRequester = await this.sendMail({ to: requester, subject: confSubject, text: confText, html: requesterHtml })
         } else {
-          // If requester is same as company destination, skip duplicate send
           this.logger.log('Requester email equals company destination; skipping confirmation send')
         }
       } catch (err) {
