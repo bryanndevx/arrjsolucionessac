@@ -41,6 +41,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             quantity: it.quantity
           }))
           setItems(restored)
+          console.debug('[Cart] loaded', restored.length, 'items from localStorage')
         }
       }
     } catch (err) {
