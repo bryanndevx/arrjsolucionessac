@@ -19,35 +19,30 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | undefined>(undefined)
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>([])
-  
-  // Load cart from localStorage on mount
-  useEffect(() => {
+  const [items, setItems] = useState<CartItem[]>(() => {
     try {
       const raw = localStorage.getItem('cart')
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        if (Array.isArray(parsed)) {
-          // restore items ensuring product has expected minimal fields
-          const restored = parsed.map((it: any) => ({
-            product: {
-              id: it.product.id,
-              name: it.product.name,
-              type: it.product.type,
-              price: it.product.price,
-              pricePerDay: it.product.pricePerDay,
-              images: it.product.images
-            },
-            quantity: it.quantity
-          }))
-          setItems(restored)
-          console.debug('[Cart] loaded', restored.length, 'items from localStorage')
-        }
-      }
+      if (!raw) return []
+      const parsed = JSON.parse(raw)
+      if (!Array.isArray(parsed)) return []
+      const restored = parsed.map((it: any) => ({
+        product: {
+          id: it.product.id,
+          name: it.product.name,
+          type: it.product.type,
+          price: it.product.price,
+          pricePerDay: it.product.pricePerDay,
+          images: it.product.images
+        },
+        quantity: it.quantity
+      }))
+      console.debug('[Cart] init loaded', restored.length, 'items from localStorage')
+      return restored
     } catch (err) {
-      console.warn('Unable to read cart from localStorage', err)
+      console.warn('Unable to read cart from localStorage during init', err)
+      return []
     }
-  }, [])
+  })
 
   useEffect(() => {
     try {
