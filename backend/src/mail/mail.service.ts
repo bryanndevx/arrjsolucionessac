@@ -75,26 +75,38 @@ export class MailService {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
     const ctaUrl = payload.ctaUrl || (payload.saleId ? `${frontendUrl}/checkout?saleId=${payload.saleId}` : frontendUrl)
 
+    const fmt = (n: any) => {
+      const num = Number(n)
+      if (isNaN(num)) return '—'
+      return 'S/ ' + num.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    }
+
     // Build HTML email
     const htmlBody = `
-      <div style="font-family: Arial, sans-serif; color: #222;">
-        <h2>Hemos recibido su solicitud de cotización.</h2>
-        <p><strong>Resumen:</strong></p>
-        <div style="margin-bottom: 8px">${parts.map(p => `<div>${p}</div>`).join('')}</div>
-        <div style="margin-bottom:8px"><strong>Items:</strong>${itemsHtml || '<div>—</div>'}</div>
-        <div style="margin-top:12px; padding:12px; background:#f6f6f6; border-radius:6px;">
-          <p style="margin:0; white-space:pre-wrap">${payload.message ?? ''}</p>
+      <div style="font-family: Arial, sans-serif; color: #222; max-width:600px;">
+        <div style="background:#0f172a;color:#fff;padding:16px;border-radius:6px 6px 0 0">
+          <h2 style="margin:0">Solicitud de Cotización recibida</h2>
         </div>
-        <div style="margin-top:16px">
-          <p><strong>Resumen financiero:</strong></p>
-          <div>Subtotal: ${payload.subtotal ?? '—'}</div>
-          <div>IGV (18%): ${payload.igv ?? '—'}</div>
-          <div><strong>Total: ${payload.total ?? '—'}</strong></div>
+        <div style="background:#fff;padding:18px;border:1px solid #eee;border-top:0">
+          <p style="margin:0 0 8px 0"><strong>Resumen del cliente</strong></p>
+          <div style="margin-bottom:12px">${parts.map(p => `<div style="margin:2px 0">${p}</div>`).join('')}</div>
+
+          <p style="margin:10px 0 6px"><strong>Items</strong></p>
+          <div style="margin-bottom:12px">${itemsHtml || '<div>—</div>'}</div>
+
+          <div style="padding:12px;background:#f9fafb;border-radius:6px;margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between"><div>Subtotal</div><div>${fmt(payload.subtotal)}</div></div>
+            <div style="display:flex;justify-content:space-between"><div>IGV (18%)</div><div>${fmt(payload.igv)}</div></div>
+            <hr style="border:none;border-top:1px solid #eee;margin:8px 0" />
+            <div style="display:flex;justify-content:space-between;font-weight:700"><div>Total</div><div>${fmt(payload.total)}</div></div>
+          </div>
+
+          <div style="text-align:center;margin-top:14px">
+            <a href="${ctaUrl}" style="display:inline-block;padding:12px 20px;background:#1a73e8;color:#fff;border-radius:6px;text-decoration:none">Confirmar compra</a>
+          </div>
+
+          <p style="color:#666;font-size:12px;margin-top:14px">Si no solicitó esto, ignore este correo.</p>
         </div>
-        <div style="margin-top:20px; text-align:center">
-          <a href="${ctaUrl}" style="display:inline-block;padding:12px 20px;background:#1a73e8;color:#fff;border-radius:6px;text-decoration:none">Confirmar compra</a>
-        </div>
-        <p style="color:#666; font-size:12px; margin-top:18px">Si no solicitó esto, ignore este correo.</p>
       </div>
     `
 

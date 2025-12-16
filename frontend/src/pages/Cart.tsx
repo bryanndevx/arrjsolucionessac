@@ -207,8 +207,11 @@ export default function CartPage() {
                     email: formData.email,
                     phone: formData.telefono,
                     company: formData.empresa || 'No especificada',
-                    message: `Productos solicitados:\n${productsList}\n\nComentarios: ${formData.comentarios || 'Sin comentarios'}\n\nSubtotal: S/ ${subtotal.toLocaleString('es-PE', { minimumFractionDigits: 2 })}\nIGV (18%): S/ ${igv.toLocaleString('es-PE', { minimumFractionDigits: 2 })}\nTotal: S/ ${total.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`,
+                    message: `Productos solicitados:\n${productsList}\n\nComentarios: ${formData.comentarios || 'Sin comentarios'}`,
                     items: items.map(i => ({ id: i.product.id, name: i.product.name, qty: i.quantity })),
+                    subtotal: Number(subtotal),
+                    igv: Number(igv),
+                    total: Number(total),
                     subject: `Solicitud de cotización - ${formData.nombre || 'Cliente'}`
                   }
 
