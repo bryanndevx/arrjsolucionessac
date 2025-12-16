@@ -11,7 +11,7 @@ export class RentalsController {
   ) {}
 
   @Post('send')
-  async send(@Body() body: CreateRentalDto) {
+  async send(@Body() body: any) {
     try {
       const crypto = await import('crypto')
       const token = crypto.randomUUID()
