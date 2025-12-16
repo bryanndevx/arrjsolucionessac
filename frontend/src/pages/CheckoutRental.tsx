@@ -6,12 +6,12 @@ function useQuery() {
   return new URLSearchParams(useLocation().search)
 }
 
-export default function Checkout() {
+export default function CheckoutRental() {
   const query = useQuery()
-  const saleId = query.get('saleId')
+  const rentalId = query.get('rentalId')
   const token = query.get('token')
   const navigate = useNavigate()
-  const [sale, setSale] = useState<any>(null)
+  const [rental, setRental] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [buyerDetails, setBuyerDetails] = useState({
     address: '',
@@ -19,39 +19,37 @@ export default function Checkout() {
     notes: ''
   })
 
-  const [message, setMessage] = useState<string | null>(null)
-
   useEffect(() => {
-    if (!saleId) return
+    if (!rentalId) return
     setLoading(true)
     const API = (import.meta.env.VITE_API_URL as string) || '/api'
-    fetch(`${API}/sales/${saleId}`)
+    fetch(`${API}/rentals/${rentalId}`)
       .then((r) => r.json())
       .then((data) => {
-        // endpoint returns { ok: true, sale, tokenExpired, message }
-        if (data && data.ok) {
-          setSale(data.sale)
+        // rentals GET may return plain rental or { ok:true, rental, tokenExpired, message }
+        if (data && data.ok && data.rental) {
+          setRental(data.rental)
           if (data.message) setMessage(data.message)
-          if (data.tokenExpired && !data.message) setMessage('Compra expirada')
+          if (data.tokenExpired && !data.message) setMessage('Reserva expirada')
         } else {
-          // fallback older shape
-          setSale(data)
+          setRental(data)
         }
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false))
-  }, [saleId])
+  }, [rentalId])
 
-  if (!saleId) return <div className="container">Sale ID missing in URL</div>
+  const [message, setMessage] = useState<string | null>(null)
+
+  if (!rentalId) return <div className="container">Rental ID missing in URL</div>
   if (loading) return <div className="container">Cargando...</div>
-  if (!sale) return <div className="container">Venta no encontrada</div>
+  if (!rental) return <div className="container">Reserva no encontrada</div>
 
-  // If there's a message (completed or expired), show it and disable form
   if (message) {
     return (
       <div className="checkout-page container">
         <h1>{message}</h1>
-        <p>Esta solicitud no puede ser procesada.</p>
+        <p>Esta reserva no puede ser procesada.</p>
       </div>
     )
   }
@@ -64,20 +62,20 @@ export default function Checkout() {
       const payload = {
         buyerDetails: JSON.stringify(buyerDetails),
         status: 'completed',
-        notes: buyerDetails.notes || sale.notes || '',
+        notes: buyerDetails.notes || rental.notes || '',
         token
       }
-      const res = await fetch(`${API}/sales/${saleId}`, {
+      const res = await fetch(`${API}/rentals/${rentalId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      alert('✅ Compra completada. Gracias por su compra.')
+      alert('✅ Reserva completada. Gracias.')
       navigate('/cart')
     } catch (err) {
       console.error(err)
-      alert('Error al completar la compra')
+      alert('Error al completar la reserva')
     } finally {
       setLoading(false)
     }
@@ -85,23 +83,23 @@ export default function Checkout() {
 
   return (
     <div className="checkout-page container">
-      <h1>Confirmar Compra</h1>
+      <h1>Confirmar Reserva</h1>
       <section className="sale-summary">
         <h2>Resumen</h2>
-        <p><strong>Nombre:</strong> {sale.customerName}</p>
-        <p><strong>Email:</strong> {sale.email}</p>
-        <p><strong>Teléfono:</strong> {sale.phone}</p>
+        <p><strong>Nombre:</strong> {rental.customerName}</p>
+        <p><strong>Email:</strong> {rental.email}</p>
+        <p><strong>Teléfono:</strong> {rental.phone}</p>
         <p><strong>Items:</strong></p>
         <ul>
-          {(Array.isArray(sale.items) ? sale.items : (() => { try { return JSON.parse(sale.items || '[]') } catch { return [] } })()).map((it: any, i: number) => (
+          {(Array.isArray(rental.items) ? rental.items : (() => { try { return JSON.parse(rental.items || '[]') } catch { return [] } })()).map((it: any, i: number) => (
             <li key={i}>{it.name ?? it.productName ?? JSON.stringify(it)} {it.qty ? ` — ${it.qty}` : ''}</li>
           ))}
         </ul>
-        <p><strong>Total:</strong> S/ {sale.total ?? '—'}</p>
+        <p><strong>Total:</strong> S/ {rental.total ?? '—'}</p>
       </section>
 
       <form className="checkout-form" onSubmit={handleSubmit}>
-        <h2>Datos de la compra</h2>
+        <h2>Datos de la reserva</h2>
         <div className="form-group">
           <label>Dirección de entrega</label>
           <input type="text" value={buyerDetails.address} onChange={(e) => setBuyerDetails({...buyerDetails, address: e.target.value})} required />
@@ -119,7 +117,7 @@ export default function Checkout() {
         </div>
 
         <div className="actions">
-          <button type="submit" className="btn-submit" disabled={loading}>{loading ? 'Procesando...' : 'Confirmar Compra'}</button>
+          <button type="submit" className="btn-submit" disabled={loading}>{loading ? 'Procesando...' : 'Confirmar Reserva'}</button>
         </div>
       </form>
     </div>

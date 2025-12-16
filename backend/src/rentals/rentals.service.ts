@@ -1,24 +1,28 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { Sale } from './sale.entity'
-import { CreateSaleDto } from './dto/create-sale.dto'
+import { Rental } from './rental.entity'
+import { CreateRentalDto } from './dto/create-rental.dto'
 
 @Injectable()
-export class SalesService {
-  private readonly logger = new Logger(SalesService.name)
+export class RentalsService {
+  private readonly logger = new Logger(RentalsService.name)
 
   constructor(
-    @InjectRepository(Sale)
-    private readonly repo: Repository<Sale>
+    @InjectRepository(Rental)
+    private readonly repo: Repository<Rental>
   ) {}
 
-  async create(dto: CreateSaleDto) {
-    const sale = this.repo.create({
+  async create(dto: CreateRentalDto) {
+    const rental = this.repo.create({
       customerName: dto.customerName,
       email: dto.email,
       phone: dto.phone,
       items: dto.items,
+      startDate: dto.startDate ? new Date(dto.startDate) : undefined,
+      endDate: dto.endDate ? new Date(dto.endDate) : undefined,
+      days: dto.days,
+      pricePerDay: dto.pricePerDay,
       total: dto.total,
       notes: dto.notes,
       status: dto.status ?? 'pending',
@@ -26,8 +30,8 @@ export class SalesService {
       token: dto.token,
       tokenExpires: dto.tokenExpires ? new Date(dto.tokenExpires) : undefined
     })
-    const saved = await this.repo.save(sale)
-    this.logger.log(`Sale created id=${saved.id}`)
+    const saved = await this.repo.save(rental)
+    this.logger.log(`Rental created id=${saved.id}`)
     return saved
   }
 
@@ -39,7 +43,7 @@ export class SalesService {
     return this.repo.findOneBy({ id })
   }
 
-  async update(id: number, patch: Partial<Sale>) {
+  async update(id: number, patch: Partial<Rental>) {
     await this.repo.update(id, patch)
     return this.findOne(id)
   }

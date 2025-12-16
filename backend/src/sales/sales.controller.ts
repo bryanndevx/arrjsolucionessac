@@ -18,7 +18,22 @@ export class SalesController {
 
   @Get(':id')
   async get(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne(id)
+    const sale = await this.service.findOne(id)
+    if (!sale) return { ok: false, error: 'Sale not found' }
+
+    const now = new Date()
+    const tokenExpires = sale.tokenExpires ? new Date(sale.tokenExpires) : null
+    const tokenExpired = tokenExpires ? tokenExpires < now : true
+
+    // Decide message / status for frontend
+    let message = null
+    if (sale.status === 'completed') {
+      message = 'Compra ya completada'
+    } else if (tokenExpired) {
+      message = 'Compra expirada'
+    }
+
+    return { ok: true, sale, tokenExpired, message }
   }
 
   @Patch(':id')

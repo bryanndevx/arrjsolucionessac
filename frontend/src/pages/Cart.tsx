@@ -215,7 +215,11 @@ export default function CartPage() {
                     subject: `Solicitud de cotización - ${formData.nombre || 'Cliente'}`
                   }
 
-                  const res = await fetch(`${API}/mail/send`, {
+                  // If any item is a rental, send to rentals endpoint
+                  const hasRent = items.some(i => i.product.type === 'rent')
+                  const endpoint = hasRent ? `${API}/rentals/send` : `${API}/mail/send`
+
+                  const res = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

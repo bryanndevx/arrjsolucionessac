@@ -17,7 +17,8 @@ export class MailController {
       // generate a one-time token that expires (default 24h)
       const crypto = await import('crypto')
       const token = crypto.randomUUID()
-      const expires = new Date(Date.now() + (24 * 60 * 60 * 1000))
+      // Token expires in 3 minutes
+      const expires = new Date(Date.now() + (3 * 60 * 1000))
 
       const saleDto = {
         customerName: body.name,

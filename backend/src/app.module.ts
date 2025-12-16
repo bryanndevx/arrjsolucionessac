@@ -8,10 +8,12 @@ import { User } from './users/user.entity'
 import { Category } from './categories/category.entity'
 import { Inventory } from './inventory/inventory.entity'
 import { Sale } from './sales/sale.entity'
+import { Rental } from './rentals/rental.entity'
 import { SalesModule } from './sales/sales.module'
 import { InventoryModule } from './inventory/inventory.module'
 import { CategoriesModule } from './categories/categories.module'
 import { MailModule } from './mail/mail.module'
+import { RentalsModule } from './rentals/rentals.module'
 import { SqliteInitService } from './db/sqlite-init.service'
 
 @Module({
@@ -21,7 +23,7 @@ import { SqliteInitService } from './db/sqlite-init.service'
       database: process.env.DB_PATH || 'data/database.sqlite',
       synchronize: true,
       logging: false,
-      entities: [User, Product, Category, Inventory, Sale],
+      entities: [User, Product, Category, Inventory, Sale, Rental],
       // Pasar opciones extra al driver sqlite3 (busyTimeout en ms)
       extra: {
         busyTimeout: 60000
@@ -31,9 +33,10 @@ import { SqliteInitService } from './db/sqlite-init.service'
     AuthModule,
     InventoryModule,
     CategoriesModule,
-    ProductsModule
-    ,MailModule,
-    SalesModule
+    ProductsModule,
+    MailModule,
+    SalesModule,
+    RentalsModule
   ],
   controllers: [],
   providers: [SqliteInitService]

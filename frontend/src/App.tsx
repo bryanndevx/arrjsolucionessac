@@ -8,6 +8,7 @@ import CartPage from './pages/Cart'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Checkout from './pages/Checkout'
+import CheckoutRental from './pages/CheckoutRental'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import AdminDashboard from './pages/AdminDashboard'
@@ -43,6 +44,7 @@ function AppLayout() {
           <Route path="/product/:id" element={<Product />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/checkout-rental" element={<CheckoutRental />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
