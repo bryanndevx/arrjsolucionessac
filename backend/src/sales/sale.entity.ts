@@ -30,6 +30,12 @@ export class Sale {
   @Column({ type: 'text', nullable: true })
   buyerDetails?: string
 
+  @Column({ type: 'text', nullable: true })
+  token?: string
+
+  @Column({ type: 'datetime', nullable: true })
+  tokenExpires?: Date
+
   @CreateDateColumn({ type: 'datetime' })
   createdAt: Date
 }

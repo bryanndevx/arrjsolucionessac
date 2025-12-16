@@ -9,6 +9,7 @@ function useQuery() {
 export default function Checkout() {
   const query = useQuery()
   const saleId = query.get('saleId')
+  const token = query.get('token')
   const navigate = useNavigate()
   const [sale, setSale] = useState<any>(null)
   const [loading, setLoading] = useState(false)
@@ -41,7 +42,8 @@ export default function Checkout() {
       const payload = {
         buyerDetails: JSON.stringify(buyerDetails),
         status: 'completed',
-        notes: buyerDetails.notes || sale.notes || ''
+        notes: buyerDetails.notes || sale.notes || '',
+        token
       }
       const res = await fetch(`${API}/sales/${saleId}`, {
         method: 'PATCH',
